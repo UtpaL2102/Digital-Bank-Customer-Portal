@@ -68,6 +68,3 @@ A strong platform:
 - **AI Chatbot Assistance**
 - **Responsive Design** for mobile & desktop
 
-
-├── docs/            # Project documentation
-└── README.md
