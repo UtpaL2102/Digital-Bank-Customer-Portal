@@ -68,3 +68,76 @@ A strong platform:
 - **AI Chatbot Assistance**
 - **Responsive Design** for mobile & desktop
 
+## 📂 Backend Folder Structure
+
+digital-bank/ <-- Root repo
+├─ .github/workflows/ <-- (For CI/CD in GitHub Actions; Jenkinsfile goes in root)
+├─ Jenkinsfile <-- Jenkins pipeline for build/test/deploy
+├─ infra/ <-- Infrastructure & local dev tooling
+│ ├─ docker-compose.dev.yml <-- Spins up Postgres + all services in dev
+│ └─ env/ <-- .env files for local dev configs
+│ ├─ auth.dev.env
+│ ├─ account.dev.env
+│ ├─ postgres.dev.env
+├─ packages/ <-- All code packages live here
+│ ├─ common/ <-- Shared code across all services
+│ │ ├─ src/
+│ │ │ ├─ config.ts <-- Env config loader
+│ │ │ ├─ logger.ts <-- Logger (e.g., pino)
+│ │ │ ├─ errors.ts <-- Custom error classes
+│ │ │ ├─ http.ts <-- Request validation helpers
+│ │ │ └─ types.ts <-- Shared TypeScript types
+│ │ └─ package.json
+│ │
+│ ├─ auth-service/ <-- Microservice #1
+│ │ ├─ src/
+│ │ │ ├─ index.ts <-- Service entrypoint (starts Express server)
+│ │ │ ├─ app.ts <-- Express app setup (middlewares, routes)
+│ │ │ ├─ routes/ <-- API route definitions
+│ │ │ │ ├─ auth.routes.ts
+│ │ │ ├─ controllers/ <-- Receives HTTP requests, calls services
+│ │ │ │ ├─ auth.controller.ts
+│ │ │ ├─ services/ <-- Business logic (register, login, JWT)
+│ │ │ │ ├─ auth.service.ts
+│ │ │ ├─ db/ <-- Database connection (Prisma or pg-pool)
+│ │ │ │ ├─ prismaClient.ts
+│ │ │ ├─ schemas/ <-- Request/response validation (Zod/Yup/Joi)
+│ │ │ ├─ middlewares/ <-- auth middleware, error handler
+│ │ │ ├─ health/ <-- /healthz and /readyz endpoints
+│ │ │ ├─ openapi/ <-- Swagger/OpenAPI spec
+│ │ │ └─ clients/ <-- Outbound HTTP calls to other services
+│ │ │ ├─ account.client.ts <-- Handles requests to account-service
+│ │ ├─ prisma/
+│ │ │ ├─ schema.prisma <-- DB schema for AuthService
+│ │ │ └─ migrations/
+│ │ ├─ Dockerfile
+│ │ ├─ tsconfig.json
+│ │ └─ package.json
+│ │
+│ └─ account-service/ <-- Microservice #2
+│ ├─ src/
+│ │ ├─ index.ts
+│ │ ├─ app.ts
+│ │ ├─ routes/
+│ │ │ ├─ account.routes.ts
+│ │ ├─ controllers/
+│ │ │ ├─ account.controller.ts
+│ │ ├─ services/
+│ │ │ ├─ account.service.ts
+│ │ ├─ db/
+│ │ │ ├─ prismaClient.ts
+│ │ ├─ schemas/
+│ │ ├─ middlewares/
+│ │ ├─ health/
+│ │ ├─ openapi/
+│ │ └─ clients/ <-- Outbound HTTP calls to other services
+│ │ ├─ auth.client.ts <-- Handles requests to auth-service
+│ ├─ prisma/
+│ │ ├─ schema.prisma <-- DB schema for AccountService
+│ │ └─ migrations/
+│ ├─ Dockerfile
+│ ├─ tsconfig.json
+│ └─ package.json
+├─ package.json
+└─ README.md
+
