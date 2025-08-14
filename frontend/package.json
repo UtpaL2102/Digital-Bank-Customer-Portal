@@ -4,10 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "prestart": "node env.js",
+    "prebuild": "NODE_ENV=production node env.js",
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "deploy": "gh-pages -d build && node reset-homepage.js"
   },
   "repository": {
     "type": "git",
@@ -19,10 +20,16 @@
   "bugs": {
     "url": "https://github.com/UtpaL2102/Digital-Bank-Customer-Portal-/issues"
   },
-  "homepage": "https://github.com/UtpaL2102/Digital-Bank-Customer-Portal-#readme",
+  "homepage": ".",
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.1",
+    "@mui/material": "^7.3.1",
+    "gh-pages": "^6.0.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-router-dom": "^7.8.0",
     "react-scripts": "^5.0.1"
   },
   "browserslist": {
