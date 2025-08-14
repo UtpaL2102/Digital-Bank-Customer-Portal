@@ -69,5 +69,4 @@ A strong platform:
 - **Responsive Design** for mobile & desktop
 
 
-├── docs/            # Project documentation
-└── README.md
+
