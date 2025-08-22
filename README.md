@@ -71,74 +71,116 @@ A strong platform:
 ## Project Structure
 
 ```plaintext
-digital-bank/                        <-- Root repo
-├─ .github/workflows/                <-- (For CI/CD in GitHub Actions; Jenkinsfile goes in root)
-├─ Jenkinsfile                        <-- Jenkins pipeline for build/test/deploy
-├─ infra/                             <-- Infrastructure & local dev tooling
-│  ├─ docker-compose.dev.yml          <-- Spins up Postgres + all services in dev
-│  └─ env/                            <-- .env files for local dev configs
+digital-bank/                        <-- Root repo (monorepo)
+├─ .github/workflows/                <-- CI/CD workflows (GitHub Actions)
+├─ Jenkinsfile                        <-- Jenkins pipeline (alternative CI/CD)
+│
+├─ infra/                             <-- Infra + local dev tooling
+│  ├─ docker-compose.dev.yml          <-- Local dev stack (Postgres + services)
+│  ├─ k8s/                            <-- Kubernetes manifests (deployments, svc, ingress)
+│  └─ env/                            <-- Environment files
 │     ├─ auth.dev.env
 │     ├─ account.dev.env
+│     ├─ bff.dev.env
+│     ├─ chatbot.dev.env              <-- For python service
 │     ├─ postgres.dev.env
-├─ packages/                          <-- All code packages live here
+│
+├─ packages/                          <-- All code packages (Node.js/TS services)
 │  ├─ common/                         <-- Shared code across all services
 │  │  ├─ src/
-│  │  │  ├─ config.ts                 <-- Env config loader
-│  │  │  ├─ logger.ts                 <-- Logger (e.g., pino)
+│  │  │  ├─ config.ts                 <-- Env loader
+│  │  │  ├─ logger.ts                 <-- Pino logger
 │  │  │  ├─ errors.ts                 <-- Custom error classes
 │  │  │  ├─ http.ts                   <-- Request validation helpers
-│  │  │  └─ types.ts                  <-- Shared TypeScript types
+│  │  │  └─ types.ts                  <-- Shared TS types
+│  │  └─ package.json
+│  │
+│  ├─ contracts/                      <-- Shared DTOs/types (service contracts)
+│  │  └─ src/
+│  │     ├─ auth.ts
+│  │     ├─ accounts.ts
+│  │     ├─ transactions.ts
+│  │     ├─ limits.ts
+│  │     └─ notifications.ts
+│  │  └─ package.json
+│  │
+│  ├─ bff/                            <-- Backend-for-Frontend (API Gateway)
+│  │  ├─ src/
+│  │  │  ├─ index.ts                  <-- Entrypoint
+│  │  │  ├─ app.ts                    <-- Express app setup
+│  │  │  ├─ routes/                   <-- Routes for frontend
+│  │  │  │  ├─ auth.bff.routes.ts
+│  │  │  │  ├─ accounts.bff.routes.ts
+│  │  │  │  ├─ transfers.bff.routes.ts
+│  │  │  │  ├─ limits.bff.routes.ts
+│  │  │  │  └─ notifications.bff.routes.ts
+│  │  │  ├─ middlewares/              <-- BFF-specific middleware
+│  │  │  └─ clients/                  <-- Clients to call microservices
+│  │  ├─ openapi/                     <-- BFF OpenAPI spec
+│  │  ├─ tsconfig.json
 │  │  └─ package.json
 │  │
 │  ├─ auth-service/                   <-- Microservice #1
 │  │  ├─ src/
-│  │  │  ├─ index.ts                  <-- Service entrypoint (starts Express server)
-│  │  │  ├─ app.ts                    <-- Express app setup (middlewares, routes)
-│  │  │  ├─ routes/                   <-- API route definitions
+│  │  │  ├─ index.ts                  <-- Entrypoint
+│  │  │  ├─ app.ts
+│  │  │  ├─ routes/
 │  │  │  │  ├─ auth.routes.ts
-│  │  │  ├─ controllers/              <-- Receives HTTP requests, calls services
+│  │  │  ├─ controllers/
 │  │  │  │  ├─ auth.controller.ts
-│  │  │  ├─ services/                 <-- Business logic (register, login, JWT)
+│  │  │  ├─ services/
 │  │  │  │  ├─ auth.service.ts
-│  │  │  ├─ db/                        <-- Database connection (Prisma or pg-pool)
+│  │  │  ├─ db/
 │  │  │  │  ├─ prismaClient.ts
-│  │  │  ├─ schemas/                  <-- Request/response validation (Zod/Yup/Joi)
-│  │  │  ├─ middlewares/              <-- auth middleware, error handler
-│  │  │  ├─ health/                    <-- /healthz and /readyz endpoints
-│  │  │  ├─ openapi/                   <-- Swagger/OpenAPI spec
-│  │  │  └─ clients/                   <-- Outbound HTTP calls to other services
-│  │  │     ├─ account.client.ts       <-- Handles requests to account-service
+│  │  │  ├─ schemas/                  <-- Zod/Joi validation
+│  │  │  ├─ middlewares/
+│  │  │  ├─ health/                   <-- /healthz, /readyz
+│  │  │  ├─ openapi/                  <-- Swagger/OpenAPI
+│  │  │  └─ clients/                  <-- Outbound calls
 │  │  ├─ prisma/
-│  │  │  ├─ schema.prisma             <-- DB schema for AuthService
+│  │  │  ├─ schema.prisma
 │  │  │  └─ migrations/
 │  │  ├─ Dockerfile
 │  │  ├─ tsconfig.json
 │  │  └─ package.json
 │  │
-│  └─ account-service/                <-- Microservice #2
-│     ├─ src/
-│     │  ├─ index.ts
-│     │  ├─ app.ts
-│     │  ├─ routes/
-│     │  │  ├─ account.routes.ts
-│     │  ├─ controllers/
-│     │  │  ├─ account.controller.ts
-│     │  ├─ services/
-│     │  │  ├─ account.service.ts
-│     │  ├─ db/
-│     │  │  ├─ prismaClient.ts
-│     │  ├─ schemas/
-│     │  ├─ middlewares/
-│     │  ├─ health/
-│     │  ├─ openapi/
-│     │  └─ clients/                  <-- Outbound HTTP calls to other services
-│     │     ├─ auth.client.ts         <-- Handles requests to auth-service
-│     ├─ prisma/
-│     │  ├─ schema.prisma             <-- DB schema for AccountService
-│     │  └─ migrations/
+│  ├─ account-service/                <-- Microservice #2
+│  │  ├─ src/
+│  │  │  ├─ index.ts
+│  │  │  ├─ app.ts
+│  │  │  ├─ routes/
+│  │  │  │  ├─ account.routes.ts
+│  │  │  ├─ controllers/
+│  │  │  │  ├─ account.controller.ts
+│  │  │  ├─ services/
+│  │  │  │  ├─ account.service.ts
+│  │  │  ├─ db/
+│  │  │  │  ├─ prismaClient.ts
+│  │  │  ├─ schemas/
+│  │  │  ├─ middlewares/
+│  │  │  ├─ health/
+│  │  │  ├─ openapi/
+│  │  │  └─ clients/
+│  │  │     ├─ auth.client.ts
+│  │  ├─ prisma/
+│  │  │  ├─ schema.prisma
+│  │  │  └─ migrations/
+│  │  ├─ Dockerfile
+│  │  ├─ tsconfig.json
+│  │  └─ package.json
+│
+├─ python/                            <-- Polyglot services
+│  └─ chatbot-service/                 <-- FastAPI chatbot
+│     ├─ app.py
+│     ├─ requirements.txt
 │     ├─ Dockerfile
-│     ├─ tsconfig.json
-│     └─ package.json
+│     └─ tests/
+│
+├─ postman/                           <-- API testing
+│  ├─ DigitalBank.postman_collection.json
+│  └─ DigitalBank.postman_environment.json
+│
 ├─ package.json
+├─ tsconfig.base.json                  <-- Shared TS config for all services
 └─ README.md
 
