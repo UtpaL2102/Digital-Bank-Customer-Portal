@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["auth"]
+}
+
+model User {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  password          String
+  name              String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  refreshTokens     RefreshToken[]
+  mfa               UserMfa?
+  kycDetails        KycDetails?
+  kycDocuments      KycDocument[]
+  notificationPrefs NotificationPrefs?
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  device    String
+  token     String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model UserMfa {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  secret    String
+  enabled   Boolean  @default(false)
+  backupCodes UserMfaBackupCode[]
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model UserMfaBackupCode {
+  id      String @id @default(uuid())
+  mfaId   String
+  code    String
+  used    Boolean @default(false)
+  mfa     UserMfa @relation(fields: [mfaId], references: [id])
+}
+
+model KycDetails {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  status    String
+  score     Float
+  reason    String?
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model KycDocument {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  url       String
+  uploadedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model NotificationPrefs {
+  id      String @id @default(uuid())
+  userId  String @unique
+  email   Boolean @default(true)
+  sms     Boolean @default(false)
+  push    Boolean @default(true)
+  user    User   @relation(fields: [userId], references: [id])
+}

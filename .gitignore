@@ -1,0 +1,157 @@
+# =========================
+# OS / Editor junk
+# =========================
+.DS_Store
+Thumbs.db
+.Spotlight-V100
+.Trashes
+*.swp
+*.swo
+*.orig
+*.tmp
+
+# VS Code (ignore workspace settings; tweak if you want to keep them)
+.vscode/
+
+# JetBrains
+.idea/
+*.iml
+
+# =========================
+# Node / Monorepo / Package managers
+# =========================
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# pnpm store (global cache)
+.pnpm-store/
+.pnpm-debug.log
+
+# Turborepo cache (if used)
+.turbo/
+
+# =========================
+# TypeScript
+# =========================
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# =========================
+# Build outputs / Coverage
+# =========================
+dist/
+build/
+out/
+**/dist/
+**/build/
+**/out/
+coverage/
+**/coverage/
+.nyc_output/
+reports/
+**/reports/
+
+# =========================
+# Env / Secrets (never commit real secrets)
+# =========================
+.env
+.env.*
+**/.env
+**/.env.*
+!**/.env.example
+
+# Infra env files
+infra/env/*.env
+!infra/env/*.example
+
+# Local kube config
+.kube/
+**/.kube/
+
+# =========================
+# Prisma
+# (keep schema.prisma and migrations tracked)
+# =========================
+**/prisma/.env
+**/prisma/*.db
+**/prisma/*.sqlite
+**/prisma/*-journal
+
+# =========================
+# OpenAPI / Codegen
+# (keep authored specs; ignore generated clients)
+# =========================
+**/src/__generated__/
+**/openapi/generated/**
+**/openapi/.cache/**
+
+# =========================
+# Postman
+# (keep shared collection/env; ignore personals)
+# =========================
+!postman/DigitalBank.postman_collection.json
+!postman/DigitalBank.postman_environment.json
+postman/*local*.json
+postman/*personal*.json
+
+# =========================
+# Python (chatbot-service)
+# =========================
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+.venv/
+**/.venv/
+venv/
+pip-wheel-metadata/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+.coverage
+htmlcov/
+# Python build
+python/**/dist/
+python/**/build/
+
+# =========================
+# Docker / Compose
+# =========================
+infra/.data/
+**/.docker-cache/
+**/.docker/**
+
+# =========================
+# Logs / Temp
+# =========================
+logs/
+**/logs/
+*.log
+*.log.*
+tmp/
+**/tmp/
+cache/
+**/.cache/
+
+# =========================
+# Certificates / Keys (never commit real keys)
+# =========================
+*.pem
+*.key
+*.crt
+*.p12
+*.der
+
+# =========================
+# Misc
+# =========================
+ehthumbs.db
+Icon?
+Desktop.ini
