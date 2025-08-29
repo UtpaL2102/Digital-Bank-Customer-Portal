@@ -1,0 +1,33 @@
+{
+  "name": "digital-bank",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "prepare": "husky install",
+    "dev": "concurrently \"pnpm -C packages/auth-service dev\" \"pnpm -C packages/account-service dev\" \"pnpm -C packages/bff dev\" \"pnpm -C python/chatbot-service dev\"",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "format": "pnpm -r format",
+    "dev:bff": "pnpm -C packages/bff dev",
+    "dev:auth": "pnpm -C packages/auth-service dev",
+    "dev:account": "pnpm -C packages/account-service dev",
+    "migrate:auth": "pnpm -C packages/auth-service migrate",
+    "migrate:account": "pnpm -C packages/account-service migrate",
+    "db:reset": "pnpm -C packages/auth-service db:reset && pnpm -C packages/account-service db:reset"
+  },
+  "lint-staged": {
+  "packages/**/*.{ts,js,tsx}": [
+    "eslint --fix",
+    "prettier --write"
+  ]
+}
+,
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

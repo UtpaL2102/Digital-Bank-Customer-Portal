@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["accounts"]
+}
+
+model Branch {
+  id        String   @id @default(uuid())
+  name      String
+  address   String
+  employees Employee[]
+}
+
+model Employee {
+  id        String   @id @default(uuid())
+  branchId  String
+  name      String
+  role      String
+  branch    Branch   @relation(fields: [branchId], references: [id])
+}
+
+model Account {
+  id        String   @id @default(uuid())
+  type      String
+  balance   Float
+  currency  String
+  ownerId   String
+  transactions Transaction[]
+  beneficiaries Beneficiary[]
+  statements Statement[]
+  limitRequests LimitRequest[]
+  loans     Loan[]
+  notifications Notification[]
+  auditLogs AuditLog[]
+  disputes  Dispute[]
+  scheduledTransfers ScheduledTransfer[]
+}
+
+model Transaction {
+  id              String   @id @default(uuid())
+  fromAccountId   String
+  toAccountId     String
+  amount          Float
+  currency        String
+  status          String
+  createdAt       DateTime @default(now())
+  toBeneficiaryId String?
+  account         Account  @relation(fields: [fromAccountId], references: [id])
+}
+
+model Beneficiary {
+  id        String   @id @default(uuid())
+  accountId String
+  name      String
+  bank      String
+  account   Account  @relation(fields: [accountId], references: [id])
+}
+
+model Statement {
+  id        String   @id @default(uuid())
+  accountId String
+  period    String
+  url       String
+  account   Account  @relation(fields: [accountId], references: [id])
+}
+
+model LimitRequest {
+  id        String   @id @default(uuid())
+  accountId String
+  requestedLimit Float
+  reason    String
+  status    String
+  events    LimitRequestEvent[]
+  account   Account  @relation(fields: [accountId], references: [id])
+}
+
+model LimitRequestEvent {
+  id        String   @id @default(uuid())
+  limitRequestId String
+  type      String
+  createdAt DateTime @default(now())
+  limitRequest LimitRequest @relation(fields: [limitRequestId], references: [id])
+}
+
+model Loan {
+  id        String   @id @default(uuid())
+  accountId String
+  amount    Float
+  status    String
+  schedule  String
+  account   Account  @relation(fields: [accountId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  accountId String
+  type      String
+  message   String
+  read      Boolean @default(false)
+  createdAt DateTime @default(now())
+  account   Account  @relation(fields: [accountId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  accountId String
+  action    String
+  createdAt DateTime @default(now())
+  account   Account  @relation(fields: [accountId], references: [id])
+}
+
+model Dispute {
+  id        String   @id @default(uuid())
+  accountId String
+  description String
+  status    String
+  attachments DisputeAttachment[]
+  account   Account  @relation(fields: [accountId], references: [id])
+}
+
+model DisputeAttachment {
+  id        String   @id @default(uuid())
+  disputeId String
+  url       String
+  dispute   Dispute  @relation(fields: [disputeId], references: [id])
+}
+
+model ScheduledTransfer {
+  id        String   @id @default(uuid())
+  accountId String
+  amount    Float
+  status    String
+  schedule  String
+  account   Account  @relation(fields: [accountId], references: [id])
+}

@@ -1,0 +1,43 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:16
+    env_file:
+      - ./env/postgres.dev.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  auth-service:
+    build: ../packages/auth-service
+    env_file:
+      - ./env/auth.dev.env
+    ports:
+      - "4001:4001"
+    depends_on:
+      - postgres
+  account-service:
+    build: ../packages/account-service
+    env_file:
+      - ./env/account.dev.env
+    ports:
+      - "4002:4002"
+    depends_on:
+      - postgres
+  bff:
+    build: ../packages/bff
+    env_file:
+      - ./env/bff.dev.env
+    ports:
+      - "4000:4000"
+    depends_on:
+      - auth-service
+      - account-service
+  chatbot-service:
+    build: ../python/chatbot-service
+    env_file:
+      - ./env/chatbot.dev.env
+    ports:
+      - "5001:5001"
+volumes:
+  pgdata:

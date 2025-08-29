@@ -1,0 +1,699 @@
+openapi: 3.1.0
+info:
+title: Digital Bank BFF API
+version: "1.0.0"
+description: Backend-for-Frontend API for the Digital Bank portal (versioned v1).
+servers:
+
+url: http://localhost:4000/api/v1
+description: Local
+url: https://your-domain.example.com/api/v1
+description: Production
+security:
+bearerAuth: []
+components:
+securitySchemes:
+bearerAuth:
+type: http
+scheme: bearer
+bearerFormat: JWT
+parameters:
+IdempotencyKey:
+name: Idempotency-Key
+in: header
+required: false
+schema: { type: string, format: uuid }
+description: Ensures a transfer is processed only once.
+AccountIdQuery:
+name: accountId
+in: query
+required: false
+schema: { type: string, format: uuid }
+Page:
+name: page
+in: query
+schema: { type: integer, minimum: 1, default: 1 }
+PageSize:
+name: pageSize
+in: query
+schema: { type: integer, minimum: 1, maximum: 200, default: 20 }
+schemas:
+User:
+type: object
+properties:
+id: { type: string, format: uuid }
+name: { type: string }
+email: { type: string, format: email }
+phone_number: { type: string }
+role: { type: string, enum: [user, admin] }
+status: { type: string, enum: [pending_kyc, verifying, verified, failed] }
+Account:
+type: object
+properties:
+id: { type: string, format: uuid }
+account_number: { type: string }
+account_type: { type: string }
+status: { type: string }
+balance: { type: number }
+daily_limit: { type: number }
+monthly_limit: { type: number }
+Transaction:
+type: object
+properties:
+id: { type: string, format: uuid }
+created_at: { type: string, format: date-time }
+type: { type: string, enum: [debit, credit, transfer, fee] }
+status: { type: string, enum: [pending, completed, failed, reversed] }
+description: { type: string }
+from_account_id: { type: string, format: uuid }
+to_account_id: { type: string, format: uuid, nullable: true }
+to_beneficiary_id: { type: string, format: uuid, nullable: true }
+amount: { type: number }
+Beneficiary:
+type: object
+properties:
+id: { type: string, format: uuid }
+name: { type: string }
+bank_name: { type: string }
+account_number: { type: string }
+ifsc_swift: { type: string }
+currency: { type: string }
+is_active: { type: boolean }
+Limit:
+type: object
+properties:
+account_id: { type: string, format: uuid }
+daily_limit: { type: number }
+monthly_limit: { type: number }
+used_today: { type: number }
+used_month: { type: number }
+LimitRequest:
+type: object
+properties:
+id: { type: string, format: uuid }
+user_id: { type: string, format: uuid }
+account_id: { type: string, format: uuid }
+requested_daily_limit: { type: number }
+requested_monthly_limit: { type: number }
+status: { type: string, enum: [pending, approved, declined] }
+decided_at: { type: string, format: date-time, nullable: true }
+Statement:
+type: object
+properties:
+id: { type: string, format: uuid }
+account_id: { type: string, format: uuid }
+date_from: { type: string, format: date }
+date_to: { type: string, format: date }
+format: { type: string, enum: [PDF, CSV] }
+delivery: { type: string, enum: [download, email, both] }
+file_url: { type: string, nullable: true }
+status: { type: string, enum: [generating, completed, failed] }
+Notification:
+type: object
+properties:
+id: { type: string, format: uuid }
+type: { type: string }
+message: { type: string }
+status: { type: string, enum: [unread, read] }
+sent_at: { type: string, format: date-time }
+Session:
+type: object
+properties:
+id: { type: string, format: uuid }
+ip: { type: string }
+user_agent: { type: string }
+expires_at: { type: string, format: date-time }
+KycStatus:
+type: object
+properties:
+status: { type: string, enum: [submitted, verifying, verified, failed] }
+verification_score: { type: number, nullable: true }
+failure_reason: { type: string, nullable: true }
+Error:
+type: object
+properties:
+error:
+type: object
+properties:
+code: { type: string }
+message: { type: string }
+details: { type: array, items: { type: string } }
+paths:
+/auth/register:
+post:
+summary: Register
+requestBody:
+required: true
+content:
+application/json:
+schema:
+type: object
+required: [name, email, phone_number, password]
+properties:
+name: { type: string }
+email: { type: string, format: email }
+phone_number: { type: string }
+password: { type: string, format: password }
+responses:
+"201": { description: Created, content: { application/json: { schema: { type: object, properties: { user: { $ref: "#/components/schemas/User" } } } } } }
+"400": { description: Bad Request, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+/auth/login:
+post:
+summary: Login
+requestBody:
+required: true
+content:
+application/json:
+schema:
+type: object
+required: [email, password]
+properties:
+email: { type: string, format: email }
+password: { type: string, format: password }
+responses:
+"200":
+description: OK
+content:
+application/json:
+schema:
+type: object
+properties:
+requires2fa: { type: boolean }
+/auth/2fa/verify:
+post:
+summary: Verify 2FA
+requestBody:
+required: true
+content:
+application/json:
+schema:
+type: object
+required: [code]
+properties:
+code: { type: string }
+responses:
+"200":
+description: Tokens
+content:
+application/json:
+schema:
+type: object
+properties:
+access_token: { type: string }
+refresh_token: { type: string }
+user: { $ref: "#/components/schemas/User" }
+/me:
+get:
+summary: Get profile
+responses:
+"200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/User" } } } }
+put:
+summary: Update profile
+requestBody:
+required: true
+content:
+application/json:
+schema:
+type: object
+properties:
+name: { type: string }
+phone_number: { type: string }
+responses:
+"200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/User" } } } }
+/auth/change-password:
+post:
+summary: Change password
+requestBody:
+required: true
+content:
+application/json:
+schema:
+type: object
+required: [current_password, new_password]
+properties:
+current_password: { type: string }
+new_password: { type: string }
+responses:
+"200": { description: OK }
+/auth/sessions:
+get:
+summary: List sessions
+responses:
+"200":
+description: OK
+content:
+application/json:
+schema:
+type: object
+properties:
+items: { type: array, items: { $ref: "#/components/schemas/Session" } }
+total: { type: integer }
+delete:
+summary: Revoke all sessions
+responses:
+"200": { description: OK }
+/auth/sessions/{id}:
+delete:
+summary: Revoke session
+parameters:
+- name: id
+in: path
+required: true
+schema: { type: string, format: uuid }
+responses:
+"200": { description: OK }
+/auth/2fa/enable:
+post:
+summary: Enable 2FA (start)
+responses:
+"200": { description: OK }
+/auth/2fa/disable:
+post:
+summary: Disable 2FA
+requestBody:
+required: true
+content:
+application/json:
+schema: { type: object, properties: { code: { type: string } } }
+responses:
+"200": { description: OK }
+/auth/2fa/backup-codes:
+get:
+summary: Get backup codes
+responses:
+"200": { description: OK }
+/kyc/submit:
+post:
+summary: Submit KYC
+requestBody:
+required: true
+content:
+application/json:
+schema:
+type: object
+properties:
+document_type: { type: string }
+document_number: { type: string }
+issue_date: { type: string, format: date }
+expiry_date: { type: string, format: date }
+responses:
+"200": { description: OK }
+/kyc/documents:
+post:
+summary: Upload KYC document
+requestBody:
+required: true
+content:
+multipart/form-data:
+schema:
+type: object
+required: [doc_kind, file]
+properties:
+doc_kind: { type: string }
+file: { type: string, format: binary }
+responses:
+"201": { description: Created }
+/kyc/status:
+get:
+summary: Get KYC status
+responses:
+"200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/KycStatus" } } } }
+/kyc/resubmit:
+post:
+summary: Resubmit KYC
+requestBody:
+required: false
+content:
+application/json:
+schema: { type: object, properties: { reason: { type: string } } }
+responses:
+"200": { description: OK }
+/accounts:
+get:
+summary: List accounts
+responses:
+"200":
+description: OK
+content:
+application/json:
+schema:
+type: object
+properties:
+items: { type: array, items: { $ref: "#/components/schemas/Account" } }
+total: { type: integer }
+/accounts/{id}:
+get:
+summary: Account detail
+parameters:
+- name: id
+in: path
+required: true
+schema: { type: string, format: uuid }
+responses:
+"200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Account" } } } }
+/transactions:
+get:
+summary: List transactions
+parameters:
+- $ref: "#/components/parameters/AccountIdQuery"
+- name: dateFrom
+in: query
+schema: { type: string, format: date }
+- name: dateTo
+in: query
+schema: { type: string, format: date }
+- name: type
+in: query
+schema: { type: string }
+- name: status
+in: query
+schema: { type: string }
+- $ref: "#/components/parameters/Page"
+- $ref: "#/components/parameters/PageSize"
+responses:
+"200":
+description: OK
+content:
+application/json:
+schema:
+type: object
+properties:
+items: { type: array, items: { $ref: "#/components/schemas/Transaction" } }
+total: { type: integer }
+/transactions/{id}:
+get:
+summary: Transaction detail
+parameters:
+- name: id
+in: path
+required: true
+schema: { type: string, format: uuid }
+responses:
+"200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Transaction" } } } }
+/transfer:
+post:
+summary: Create transfer (internal or external)
+parameters:
+- $ref: "#/components/parameters/IdempotencyKey"
+requestBody:
+required: true
+content:
+application/json:
+schema:
+type: object
+required: [from_account_id, amount]
+properties:
+from_account_id: { type: string, format: uuid }
+to_account_id: { type: string, format: uuid, nullable: true }
+to_beneficiary_id: { type: string, format: uuid, nullable: true }
+amount: { type: number }
+description: { type: string, nullable: true }
+schedule_at: { type: string, format: date-time, nullable: true }
+responses:
+"201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Transaction" } } } }
+/beneficiaries:
+get:
+summary: List beneficiaries
+responses:
+"200": { description: OK }
+post:
+summary: Add beneficiary
+requestBody:
+required: true
+content:
+application/json:
+schema:
+type: object
+required: [name, account_number]
+properties:
+name: { type: string }
+bank_name: { type: string }
+account_number: { type: string }
+ifsc_swift: { type: string }
+currency: { type: string }
+responses:
+"201": { description: Created }
+/beneficiaries/{id}:
+put:
+summary: Update beneficiary
+parameters:
+- name: id
+in: path
+required: true
+schema: { type: string, format: uuid }
+requestBody:
+required: true
+content:
+application/json:
+schema:
+type: object
+properties:
+name: { type: string }
+is_active: { type: boolean }
+responses:
+"200": { description: OK }
+delete:
+summary: Delete beneficiary
+parameters:
+- name: id
+in: path
+required: true
+schema: { type: string, format: uuid }
+responses:
+"200": { description: OK }
+/limits:
+get:
+summary: Get per-account limits and usage
+parameters:
+- $ref: "#/components/parameters/AccountIdQuery"
+responses:
+"200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Limit" } } } }
+/limit-requests:
+get:
+summary: My limit requests
+responses:
+"200": { description: OK }
+post:
+summary: Submit limit request
+requestBody:
+required: true
+content:
+application/json:
+schema:
+type: object
+required: [account_id]
+properties:
+account_id: { type: string, format: uuid }
+requested_daily_limit: { type: number }
+requested_monthly_limit: { type: number }
+reason: { type: string }
+responses:
+"201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/LimitRequest" } } } }
+/admin/limit-requests:
+get:
+summary: Admin list limit requests
+responses:
+"200": { description: OK }
+/admin/limit-requests/{id}/approve:
+put:
+summary: Approve limit request
+parameters:
+- name: id
+in: path
+required: true
+schema: { type: string, format: uuid }
+requestBody:
+required: false
+content:
+application/json:
+schema: { type: object, properties: { note: { type: string } } }
+responses:
+"200": { description: OK }
+/admin/limit-requests/{id}/decline:
+put:
+summary: Decline limit request
+parameters:
+- name: id
+in: path
+required: true
+schema: { type: string, format: uuid }
+requestBody:
+required: false
+content:
+application/json:
+schema: { type: object, properties: { note: { type: string } } }
+responses:
+"200": { description: OK }
+/statements:
+get: { summary: List statements, responses: { "200": { description: OK } } }
+post:
+summary: Generate statement
+requestBody:
+required: true
+content:
+application/json:
+schema:
+type: object
+required: [account_id, date_from, date_to]
+properties:
+account_id: { type: string, format: uuid }
+date_from: { type: string, format: date }
+date_to: { type: string, format: date }
+format: { type: string, enum: [PDF, CSV] }
+delivery: { type: string, enum: [download, email, both] }
+responses:
+"201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/Statement" } } } }
+/statements/{id}:
+get:
+summary: Get statement
+parameters:
+- name: id
+in: path
+required: true
+schema: { type: string, format: uuid }
+responses:
+"200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Statement" } } } }
+/notifications:
+get: { summary: List notifications, responses: { "200": { description: OK } } }
+/notifications/{id}/read:
+post: { summary: Mark notification read, responses: { "200": { description: OK } } }
+/notifications/read-all:
+post: { summary: Mark all notifications read, responses: { "200": { description: OK } } }
+/loans:
+get: { summary: List loans, responses: { "200": { description: OK } } }
+/loans/{id}:
+get:
+summary: Loan detail
+parameters:
+- name: id
+in: path
+required: true
+schema: { type: string, format: uuid }
+responses:
+"200": { description: OK }
+/loans/{id}/schedule:
+get:
+summary: Loan schedule
+parameters:
+- name: id
+in: path
+required: true
+schema: { type: string, format: uuid }
+responses:
+"200": { description: OK }
+/disputes:
+get: { summary: My disputes, responses: { "200": { description: OK } } }
+post:
+summary: Create dispute
+requestBody:
+required: true
+content:
+application/json:
+schema:
+type: object
+required: [transaction_id, reason]
+properties:
+transaction_id: { type: string, format: uuid }
+reason: { type: string }
+description: { type: string }
+responses:
+"201": { description: Created }
+/disputes/{id}:
+get:
+summary: Dispute detail
+parameters:
+- name: id
+in: path
+required: true
+schema: { type: string, format: uuid }
+responses:
+"200": { description: OK }
+/disputes/{id}/attachments:
+post:
+summary: Add dispute attachment
+parameters:
+- name: id
+in: path
+required: true
+schema: { type: string, format: uuid }
+requestBody:
+required: true
+content:
+multipart/form-data:
+schema:
+type: object
+required: [file]
+properties:
+file: { type: string, format: binary }
+responses:
+"201": { description: Created }
+/scheduled-transfers:
+get: { summary: List scheduled transfers, responses: { "200": { description: OK } } }
+post:
+summary: Create scheduled transfer
+requestBody:
+required: true
+content:
+application/json:
+schema:
+type: object
+required: [from_account_id, amount, frequency, next_run_at]
+properties:
+from_account_id: { type: string, format: uuid }
+to_account_id: { type: string, format: uuid, nullable: true }
+to_beneficiary_id: { type: string, format: uuid, nullable: true }
+amount: { type: number }
+description: { type: string, nullable: true }
+frequency: { type: string, enum: [once, daily, weekly, monthly, custom_cron] }
+next_run_at: { type: string, format: date-time }
+responses:
+"201": { description: Created }
+/scheduled-transfers/{id}:
+put:
+summary: Update scheduled transfer
+parameters:
+- name: id
+in: path
+required: true
+schema: { type: string, format: uuid }
+requestBody:
+required: true
+content:
+application/json:
+schema:
+type: object
+properties:
+amount: { type: number }
+frequency: { type: string }
+next_run_at: { type: string, format: date-time }
+responses:
+"200": { description: OK }
+delete:
+summary: Cancel scheduled transfer
+parameters:
+- name: id
+in: path
+required: true
+schema: { type: string, format: uuid }
+responses:
+"200": { description: OK }
+/scheduled-transfers/{id}/pause:
+post:
+summary: Pause scheduled transfer
+parameters:
+- name: id
+in: path
+required: true
+schema: { type: string, format: uuid }
+responses:
+"200": { description: OK }
+/scheduled-transfers/{id}/resume:
+post:
+summary: Resume scheduled transfer
+parameters:
+- name: id
+in: path
+required: true
+schema: { type: string, format: uuid }
+responses:
+"200": { description: OK }
