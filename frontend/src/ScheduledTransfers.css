@@ -1,0 +1,62 @@
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.gradient-btn {
+  background-image: linear-gradient(to right, #001BB7, #0046FF);
+}
+
+.gradient-btn:hover {
+  opacity: 0.9;
+}
+
+.status-pill {
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status-active {
+  background-color: rgba(52, 199, 89, 0.1);
+  color: #34C759;
+}
+
+.status-paused {
+  background-color: rgba(255, 149, 0, 0.1);
+  color: #FF9500;
+}
+
+.status-cancelled {
+  background-color: rgba(255, 59, 48, 0.1);
+  color: #FF3B30;
+}
+
+.action-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-icon .tooltip {
+  visibility: hidden;
+  width: max-content;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.action-icon:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}

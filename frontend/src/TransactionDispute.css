@@ -1,0 +1,29 @@
+.form-input {
+  border: 1px solid #E0E0E0;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus,
+.form-input:hover {
+  outline: none;
+  border-color: #A0B3FF;
+  box-shadow: 0 0 0 3px rgba(0, 70, 255, 0.1);
+}
+
+.submit-button {
+  background-image: linear-gradient(to right, #001BB7, #0046FF);
+  transition: transform 0.2s ease;
+}
+
+.submit-button:hover {
+  transform: translateY(-2px);
+}
+
+.file-upload-area {
+  border: 2px dashed #D1D5DB;
+  transition: background-color 0.3s ease;
+}
+
+.file-upload-area.dragover {
+  background-color: #F3F4F6;
+}
