@@ -1,0 +1,52 @@
+/* Page accents */
+.gradient-btn {
+  background-image: linear-gradient(to right, #001BB7, #0046FF);
+}
+.form-input {
+  border-color: #E0E0E0;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.form-input:focus {
+  border-color: #001BB7;
+  box-shadow: 0 0 0 2px rgba(0, 27, 183, 0.2);
+  outline: none;
+}
+
+/* Rock-solid switch (no tilt, aligns perfectly) */
+.toggle-container {
+  position: relative;
+  width: 44px;  /* Tailwind w-11 */
+  height: 24px; /* Tailwind h-6  */
+}
+.toggle-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;         /* hide the native checkbox, keep it accessible */
+  cursor: pointer;
+  z-index: 2;
+}
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: #E5E7EB; /* gray-200/300 */
+  border-radius: 9999px;
+  transition: background-color .2s ease-in-out, background-image .2s ease-in-out;
+}
+.toggle-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 9999px;
+  transition: transform .2s ease-in-out;
+}
+/* Checked visual state */
+.toggle-input:checked + .toggle-track {
+  background-image: linear-gradient(to right, #001BB7, #0046FF);
+}
+.toggle-input:checked + .toggle-track::after {
+  transform: translateX(20px);
+}

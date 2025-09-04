@@ -1,0 +1,45 @@
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #F5F7FA;
+}
+
+.gradient-button {
+  background-image: linear-gradient(to right, #001BB7, #0046FF);
+  transition: all 0.3s ease;
+}
+.gradient-button:hover {
+  box-shadow: 0 4px 15px 0 rgba(0, 70, 255, 0.3);
+}
+
+.pill-tab {
+  transition: all 0.3s ease;
+  background-color: transparent;
+  color: #6B7280;
+}
+.pill-tab.active {
+  background-color: white;
+  color: #0046FF;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.input-chip {
+  background-color: white;
+  border: 1px solid #E0E7FF;
+  transition: all 0.3s ease;
+}
+.input-chip:hover {
+  border-color: #0046FF;
+  box-shadow: 0 0 0 2px rgba(0, 70, 255, 0.1);
+}
+
+.table-row-alt:nth-child(even) {
+  background-color: #FFFFFF;
+}
+.table-row-alt:nth-child(odd) {
+  background-color: #F9FAFB;
+}
+
+.orange-text {
+  color: #FF8040;
+}

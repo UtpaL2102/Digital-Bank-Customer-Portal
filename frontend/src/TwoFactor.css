@@ -1,0 +1,29 @@
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.gradient-button {
+  background-image: linear-gradient(to right, #001BB7, #0046FF);
+}
+
+.gradient-button:hover {
+  box-shadow: 0 0 20px rgba(0, 70, 255, 0.5);
+}
+
+.otp-input:focus {
+  outline: none;
+  border-color: #0046FF;
+  box-shadow: 0 0 0 2px rgba(0, 70, 255, 0.2);
+}
+
+.otp-input.error {
+  border-color: #FF8040;
+}
+
+.error-message {
+  display: none;
+}
+
+.error-message.show {
+  display: flex;
+}

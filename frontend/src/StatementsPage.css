@@ -1,0 +1,73 @@
+/* src/StatementsPage.css */
+
+/* Body background is already handled by Tailwind's bg-gray-50, 
+   but we keep font-family for consistency */
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Buttons */
+.btn-primary {
+  background-image: linear-gradient(to right, #001BB7, #0046FF);
+}
+
+/* Input chips */
+.input-chip {
+  background-color: #FFFFFF;
+  border: 1px solid #E0E0E0;
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.input-chip:hover,
+.input-chip:focus-within {
+  border-color: #0046FF;
+  box-shadow: 0 0 0 2px rgba(0, 70, 255, 0.2);
+}
+
+/* Table card container */
+.table-card {
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+              0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Table badges */
+.badge-completed {
+  background-color: #D1FAE5; /* green-100 */
+  color: #065F46; /* green-800 */
+  padding: 0.25rem 0.75rem;
+  font-size: 0.625rem; /* xs */
+  font-weight: 600;
+  border-radius: 9999px;
+}
+
+.badge-pending {
+  background-color: #FFEBD5; /* custom light orange */
+  color: #FF8040;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  border-radius: 9999px;
+}
+
+/* Buttons inside table cards */
+.table-card button {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Disabled buttons */
+.table-card button:disabled {
+  cursor: not-allowed;
+  background-color: #F3F4F6; /* gray-100 */
+  color: #9CA3AF; /* gray-400 */
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .table-card table {
+    display: none; /* hide table on small screens */
+  }
+}

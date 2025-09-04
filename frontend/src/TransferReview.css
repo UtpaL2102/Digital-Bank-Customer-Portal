@@ -1,0 +1,128 @@
+/* TransferReview.css */
+
+/* Gradient button */
+.gradient-bg {
+  background: linear-gradient(to right, #001BB7, #0046FF);
+}
+
+/* Confirm button hover effect */
+.confirm-btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.confirm-btn .btn-text {
+  transition: opacity 0.3s ease;
+}
+
+.confirm-btn .check-icon {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.confirm-btn:hover .btn-text {
+  opacity: 0;
+}
+
+.confirm-btn:hover .check-icon {
+  display: inline;
+}
+
+/* Cards */
+.transfer-review-container .bg-white {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Progress bar pills */
+.flex.items-center.space-x-2.bg-gray-200.rounded-full.p-1.text-sm div {
+  padding: 6px 14px;
+  border-radius: 9999px;
+}
+
+.flex.items-center.space-x-2.bg-gray-200.rounded-full.p-1.text-sm .gradient-bg {
+  font-weight: 600;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Security badges */
+.bg-blue-50 {
+  background-color: #ebf5ff;
+}
+
+.text-blue-800 {
+  color: #1e40af;
+}
+
+.bg-orange-100 {
+  background-color: #fff4e5;
+}
+
+.text-orange-600 {
+  color: #d97706;
+}
+
+.text-orange-500 {
+  color: #f97316;
+}
+
+/* Utility classes */
+.font-semibold {
+  font-weight: 600;
+}
+
+.text-gray-500 {
+  color: #6b7280;
+}
+
+.text-gray-900 {
+  color: #111827;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+}
+
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.mb-8 {
+  margin-bottom: 2rem;
+}
+
+.mt-10 {
+  margin-top: 2.5rem;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.rounded-xl {
+  border-radius: 0.75rem;
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-md {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
