@@ -1,3 +1,10 @@
 packages:
-  - 'packages/*'
-  - 'python/*'
+  - packages/*
+  - python/*
+
+ignoredBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@scarf/scarf'
+  - esbuild
+  - prisma
