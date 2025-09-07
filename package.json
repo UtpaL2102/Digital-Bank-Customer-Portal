@@ -21,13 +21,16 @@
     "db:reset": "pnpm -C packages/auth-service db:reset && pnpm -C packages/account-service db:reset"
   },
   "lint-staged": {
-  "packages/**/*.{ts,js,tsx}": [
-    "eslint --fix",
-    "prettier --write"
-  ]
-}
-,
+    "packages/**/*.{ts,js,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "husky": "^9.1.7",
+    "prisma": "^5.22.0"
   }
 }

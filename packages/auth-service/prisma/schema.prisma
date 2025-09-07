@@ -1,76 +1,105 @@
+
 generator client {
-  provider = "prisma-client-js"
-  previewFeatures = ["multiSchema"]
+provider = "prisma-client-js"
 }
+
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  schemas  = ["auth"]
+provider = "postgresql"
+url = env("DATABASE_URL") // ...?schema=auth
 }
 
 model User {
-  id                String   @id @default(uuid())
-  email             String   @unique
-  password          String
-  name              String
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  refreshTokens     RefreshToken[]
-  mfa               UserMfa?
-  kycDetails        KycDetails?
-  kycDocuments      KycDocument[]
-  notificationPrefs NotificationPrefs?
+id String @id @default(uuid()) @db.Uuid
+name String
+email String @unique
+phone_number String?
+password_hash String
+role String @default("user")
+status String @default("pending_kyc")
+refresh_token_hash String?
+refresh_token_expires DateTime?
+created_at DateTime @default(now())
+updated_at DateTime @updatedAt
+deleted_at DateTime?
+
+// Relations
+refreshTokens RefreshToken[]
+mfa UserMfa?
+backupCodes UserMfaBackupCode[]
+kyc KycDetails?
+kycDocuments KycDocument[]
+notificationPrefs NotificationPrefs?
 }
 
 model RefreshToken {
-  id        String   @id @default(uuid())
-  userId    String
-  device    String
-  token     String
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+id String @id @default(uuid()) @db.Uuid
+user_id String @db.Uuid
+token_hash String @unique
+user_agent String?
+ip String?
+created_at DateTime @default(now())
+expires_at DateTime
+revoked_at DateTime?
+
+user User @relation(fields: [user_id], references: [id])
 }
 
 model UserMfa {
-  id        String   @id @default(uuid())
-  userId    String   @unique
-  secret    String
-  enabled   Boolean  @default(false)
-  backupCodes UserMfaBackupCode[]
-  user      User     @relation(fields: [userId], references: [id])
+user_id String @id @db.Uuid
+type String @default("totp")
+secret_encrypted String
+enabled Boolean @default(false)
+created_at DateTime @default(now())
+updated_at DateTime @updatedAt
+
+user User @relation(fields: [user_id], references: [id])
 }
 
 model UserMfaBackupCode {
-  id      String @id @default(uuid())
-  mfaId   String
-  code    String
-  used    Boolean @default(false)
-  mfa     UserMfa @relation(fields: [mfaId], references: [id])
+id String @id @default(uuid()) @db.Uuid
+user_id String @db.Uuid
+code_hash String
+used_at DateTime?
+
+user User @relation(fields: [user_id], references: [id])
 }
 
 model KycDetails {
-  id        String   @id @default(uuid())
-  userId    String   @unique
-  status    String
-  score     Float
-  reason    String?
-  user      User     @relation(fields: [userId], references: [id])
+id String @id @default(uuid()) @db.Uuid
+user_id String @unique @db.Uuid
+document_type String?
+document_number String?
+issue_date DateTime?
+expiry_date DateTime?
+verified Boolean @default(false)
+status String @default("submitted")
+verification_score Float?
+failure_reason String?
+created_at DateTime @default(now())
+
+user User @relation(fields: [user_id], references: [id])
 }
 
 model KycDocument {
-  id        String   @id @default(uuid())
-  userId    String
-  type      String
-  url       String
-  uploadedAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+id String @id @default(uuid()) @db.Uuid
+user_id String @db.Uuid
+doc_kind String
+file_url String
+file_hash String?
+created_at DateTime @default(now())
+
+user User @relation(fields: [user_id], references: [id])
 }
 
 model NotificationPrefs {
-  id      String @id @default(uuid())
-  userId  String @unique
-  email   Boolean @default(true)
-  sms     Boolean @default(false)
-  push    Boolean @default(true)
-  user    User   @relation(fields: [userId], references: [id])
+user_id String @id @db.Uuid
+email_enabled Boolean @default(true)
+sms_enabled Boolean @default(false)
+in_app_enabled Boolean @default(true)
+transactions Boolean @default(true)
+low_balance Boolean @default(true)
+security Boolean @default(true)
+low_balance_threshold Decimal @default(100) @db.Decimal(19,2)
+
+user User @relation(fields: [user_id], references: [id])
 }

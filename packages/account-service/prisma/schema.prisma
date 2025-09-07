@@ -1,139 +1,219 @@
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["multiSchema"]
 }
+
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-  schemas  = ["accounts"]
+  url      = env("DATABASE_URL") // ...?schema=accounts
 }
 
 model Branch {
-  id        String   @id @default(uuid())
-  name      String
-  address   String
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String
+  code       String   @unique
+  address    String?
+  created_at DateTime @default(now())
+
   employees Employee[]
+  accounts  Account[]
+  loans     Loan[]
 }
 
 model Employee {
-  id        String   @id @default(uuid())
-  branchId  String
-  name      String
-  role      String
-  branch    Branch   @relation(fields: [branchId], references: [id])
+  id        String  @id @default(uuid()) @db.Uuid
+  user_id   String  @db.Uuid // foreign to auth.
+  branch_id String  @db.Uuid
+  position  String?
+
+  branch           Branch         @relation(fields: [branch_id], references: [id])
+  reviewedRequests LimitRequest[] @relation("EmployeeReviews") // <-- added reverse
 }
 
 model Account {
-  id        String   @id @default(uuid())
-  type      String
-  balance   Float
-  currency  String
-  ownerId   String
-  transactions Transaction[]
-  beneficiaries Beneficiary[]
-  statements Statement[]
-  limitRequests LimitRequest[]
-  loans     Loan[]
-  notifications Notification[]
-  auditLogs AuditLog[]
-  disputes  Dispute[]
-  scheduledTransfers ScheduledTransfer[]
-}
+  id             String    @id @default(uuid()) @db.Uuid
+  account_number String    @unique
+  account_type   String
+  status         String    @default("active")
+  balance        Decimal   @db.Decimal(19, 2)
+  daily_limit    Decimal?  @db.Decimal(19, 2)
+  monthly_limit  Decimal?  @db.Decimal(19, 2)
+  user_id        String    @db.Uuid // foreign to auth.users (no Prisma relation)
+  branch_id      String?   @db.Uuid
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+  closed_at      DateTime?
 
-model Transaction {
-  id              String   @id @default(uuid())
-  fromAccountId   String
-  toAccountId     String
-  amount          Float
-  currency        String
-  status          String
-  createdAt       DateTime @default(now())
-  toBeneficiaryId String?
-  account         Account  @relation(fields: [fromAccountId], references: [id])
+  branch        Branch?             @relation(fields: [branch_id], references: [id])
+  fromTxns      Transaction[]       @relation("fromTransactions")
+  toTxns        Transaction[]       @relation("toTransactions")
+  statements    Statement[]
+  loans         Loan[]
+  scheduledFrom ScheduledTransfer[] @relation("scheduledFrom")
+  scheduledTo   ScheduledTransfer[] @relation("scheduledTo")
+  limitRequests LimitRequest[] // <-- added reverse
 }
 
 model Beneficiary {
-  id        String   @id @default(uuid())
-  accountId String
-  name      String
-  bank      String
-  account   Account  @relation(fields: [accountId], references: [id])
+  id             String   @id @default(uuid()) @db.Uuid
+  user_id        String   @db.Uuid // foreign to auth.users
+  name           String
+  bank_name      String?
+  account_number String
+  ifsc_swift     String?
+  currency       String   @default("INR")
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @default(now())
+
+  transactions       Transaction[]
+  scheduledTransfers ScheduledTransfer[] @relation("BeneficiaryTransfers")
+}
+
+model Transaction {
+  id                String   @id @default(uuid()) @db.Uuid
+  created_at        DateTime @default(now())
+  amount            Decimal  @db.Decimal(19, 2)
+  status            String   @default("pending")
+  type              String   @default("transfer")
+  description       String?
+  idempotency_key   String?
+  from_account_id   String   @db.Uuid
+  to_account_id     String?  @db.Uuid
+  to_beneficiary_id String?  @db.Uuid
+  initiated_by      String   @db.Uuid // foreign to auth.users
+
+  fromAccount   Account      @relation("fromTransactions", fields: [from_account_id], references: [id])
+  toAccount     Account?     @relation("toTransactions", fields: [to_account_id], references: [id])
+  toBeneficiary Beneficiary? @relation(fields: [to_beneficiary_id], references: [id])
+  disputes      Dispute[] // <-- added reverse
+
+  @@index([from_account_id, created_at])
+  @@index([to_account_id, created_at])
+  @@index([to_beneficiary_id, created_at])
 }
 
 model Statement {
-  id        String   @id @default(uuid())
-  accountId String
-  period    String
-  url       String
-  account   Account  @relation(fields: [accountId], references: [id])
-}
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String   @db.Uuid // foreign to auth.users
+  account_id String   @db.Uuid
+  date_from  DateTime
+  date_to    DateTime
+  format     String   @default("PDF")
+  delivery   String   @default("download")
+  file_url   String?
+  status     String   @default("completed")
+  created_at DateTime @default(now())
 
-model LimitRequest {
-  id        String   @id @default(uuid())
-  accountId String
-  requestedLimit Float
-  reason    String
-  status    String
-  events    LimitRequestEvent[]
-  account   Account  @relation(fields: [accountId], references: [id])
-}
-
-model LimitRequestEvent {
-  id        String   @id @default(uuid())
-  limitRequestId String
-  type      String
-  createdAt DateTime @default(now())
-  limitRequest LimitRequest @relation(fields: [limitRequestId], references: [id])
-}
-
-model Loan {
-  id        String   @id @default(uuid())
-  accountId String
-  amount    Float
-  status    String
-  schedule  String
-  account   Account  @relation(fields: [accountId], references: [id])
-}
-
-model Notification {
-  id        String   @id @default(uuid())
-  accountId String
-  type      String
-  message   String
-  read      Boolean @default(false)
-  createdAt DateTime @default(now())
-  account   Account  @relation(fields: [accountId], references: [id])
-}
-
-model AuditLog {
-  id        String   @id @default(uuid())
-  accountId String
-  action    String
-  createdAt DateTime @default(now())
-  account   Account  @relation(fields: [accountId], references: [id])
-}
-
-model Dispute {
-  id        String   @id @default(uuid())
-  accountId String
-  description String
-  status    String
-  attachments DisputeAttachment[]
-  account   Account  @relation(fields: [accountId], references: [id])
-}
-
-model DisputeAttachment {
-  id        String   @id @default(uuid())
-  disputeId String
-  url       String
-  dispute   Dispute  @relation(fields: [disputeId], references: [id])
+  account Account @relation(fields: [account_id], references: [id])
 }
 
 model ScheduledTransfer {
-  id        String   @id @default(uuid())
-  accountId String
-  amount    Float
-  status    String
-  schedule  String
-  account   Account  @relation(fields: [accountId], references: [id])
+  id                String    @id @default(uuid()) @db.Uuid
+  user_id           String    @db.Uuid
+  from_account_id   String    @db.Uuid
+  to_account_id     String?   @db.Uuid
+  to_beneficiary_id String?   @db.Uuid
+  amount            Decimal   @db.Decimal(19, 2)
+  description       String?
+  frequency         String    @default("monthly")
+  next_run_at       DateTime
+  end_date          DateTime?
+  occurrences_left  Int?
+  status            String    @default("active")
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @default(now())
+
+  fromAccount   Account      @relation("scheduledFrom", fields: [from_account_id], references: [id])
+  toAccount     Account?     @relation("scheduledTo", fields: [to_account_id], references: [id])
+  toBeneficiary Beneficiary? @relation("BeneficiaryTransfers", fields: [to_beneficiary_id], references: [id])
+}
+
+model Dispute {
+  id              String    @id @default(uuid()) @db.Uuid
+  user_id         String    @db.Uuid
+  transaction_id  String    @db.Uuid
+  reason          String
+  description     String?
+  status          String    @default("submitted")
+  created_at      DateTime  @default(now())
+  resolved_at     DateTime?
+  resolution_note String?
+
+  transaction Transaction         @relation(fields: [transaction_id], references: [id])
+  attachments DisputeAttachment[]
+}
+
+model DisputeAttachment {
+  id         String   @id @default(uuid()) @db.Uuid
+  dispute_id String   @db.Uuid
+  file_url   String
+  file_hash  String?
+  created_at DateTime @default(now())
+
+  dispute Dispute @relation(fields: [dispute_id], references: [id])
+}
+
+model LimitRequest {
+  id                      String    @id @default(uuid()) @db.Uuid
+  user_id                 String    @db.Uuid
+  account_id              String    @db.Uuid
+  current_daily_limit     Decimal?  @db.Decimal(19, 2)
+  current_monthly_limit   Decimal?  @db.Decimal(19, 2)
+  requested_daily_limit   Decimal?  @db.Decimal(19, 2)
+  requested_monthly_limit Decimal?  @db.Decimal(19, 2)
+  reason                  String?
+  status                  String    @default("pending")
+  created_at              DateTime  @default(now())
+  decided_at              DateTime?
+  reviewer_employee_id    String?   @db.Uuid
+  decision_note           String?
+
+  account  Account             @relation(fields: [account_id], references: [id])
+  reviewer Employee?           @relation("EmployeeReviews", fields: [reviewer_employee_id], references: [id])
+  events   LimitRequestEvent[]
+}
+
+model LimitRequestEvent {
+  id                String   @id @default(uuid()) @db.Uuid
+  limit_request_id  String   @db.Uuid
+  action            String
+  actor_user_id     String?  @db.Uuid
+  actor_employee_id String?  @db.Uuid
+  note              String?
+  created_at        DateTime @default(now())
+
+  request LimitRequest @relation(fields: [limit_request_id], references: [id])
+}
+
+model Loan {
+  id            String    @id @default(uuid()) @db.Uuid
+  user_id       String    @db.Uuid
+  account_id    String    @db.Uuid
+  branch_id     String    @db.Uuid
+  amount        Decimal   @db.Decimal(19, 2)
+  interest_rate Decimal   @db.Decimal(5, 2)
+  start_date    DateTime
+  end_date      DateTime?
+  status        String
+  created_at    DateTime  @default(now())
+
+  account Account @relation(fields: [account_id], references: [id])
+  branch  Branch  @relation(fields: [branch_id], references: [id])
+}
+
+model Notification {
+  id      String    @id @default(uuid()) @db.Uuid
+  user_id String    @db.Uuid
+  type    String
+  message String
+  status  String    @default("unread")
+  sent_at DateTime?
+}
+
+model AuditLog {
+  id           String   @id @default(uuid()) @db.Uuid
+  user_id      String   @db.Uuid
+  action       String
+  details      String?
+  performed_at DateTime @default(now())
 }

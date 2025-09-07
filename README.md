@@ -77,13 +77,17 @@ digital-bank/                        <-- Root repo (monorepo)
 │
 ├─ infra/                             <-- Infra + local dev tooling
 │  ├─ docker-compose.dev.yml          <-- Local dev stack (Postgres + services)
-│  ├─ k8s/                            <-- Kubernetes manifests (deployments, svc, ingress)
+│  ├─ eureka/                        <-- Eureka server setup (instead of k8s)
+│  │  ├─ Dockerfile                  <-- Eureka server container
+│  │  ├─ application.yml             <-- Eureka config
+│  │  └─ docker-compose.override.yml <-- Optional extra settings
 │  └─ env/                            <-- Environment files
 │     ├─ auth.dev.env
 │     ├─ account.dev.env
 │     ├─ bff.dev.env
 │     ├─ chatbot.dev.env              <-- For python service
 │     ├─ postgres.dev.env
+│     └─ eureka.dev.env              <-- Eureka server config (host, port)
 │
 ├─ packages/                          <-- All code packages (Node.js/TS services)
 │  ├─ common/                         <-- Shared code across all services
@@ -116,7 +120,9 @@ digital-bank/                        <-- Root repo (monorepo)
 │  │  │  │  └─ notifications.bff.routes.ts
 │  │  │  ├─ middlewares/              <-- BFF-specific middleware
 │  │  │  └─ clients/                  <-- Clients to call microservices
-│  │  ├─ openapi/                     <-- BFF OpenAPI spec
+│  │  ├─ openapi/                    <-- Swagger docs for BFF
+│  │  │  ├─ bff.yaml
+│  │  │  └─ bff.swagger.json
 │  │  ├─ tsconfig.json
 │  │  └─ package.json
 │  │
@@ -135,7 +141,11 @@ digital-bank/                        <-- Root repo (monorepo)
 │  │  │  ├─ schemas/                  <-- Zod/Joi validation
 │  │  │  ├─ middlewares/
 │  │  │  ├─ health/                   <-- /healthz, /readyz
-│  │  │  ├─ openapi/                  <-- Swagger/OpenAPI
+│  │  │  ├─ openapi/                 <-- Swagger/OpenAPI specs
+│  │  │  │  ├─ auth.yaml
+│  │  │  │  └─ auth.swagger.json
+│  │  │  └─ discovery/               <-- Eureka client registration
+│  │  │     └─ eureka.client.ts
 │  │  │  └─ clients/                  <-- Outbound calls
 │  │  ├─ prisma/
 │  │  │  ├─ schema.prisma
@@ -159,7 +169,11 @@ digital-bank/                        <-- Root repo (monorepo)
 │  │  │  ├─ schemas/
 │  │  │  ├─ middlewares/
 │  │  │  ├─ health/
-│  │  │  ├─ openapi/
+│  │  │  ├─ openapi/                 <-- Swagger/OpenAPI specs
+│  │  │  │  ├─ account.yaml
+│  │  │  │  └─ account.swagger.json
+│  │  │  └─ discovery/               <-- Eureka client registration
+│  │  │     └─ eureka.client.ts
 │  │  │  └─ clients/
 │  │  │     ├─ auth.client.ts
 │  │  ├─ prisma/
@@ -175,6 +189,8 @@ digital-bank/                        <-- Root repo (monorepo)
 │     ├─ requirements.txt
 │     ├─ Dockerfile
 │     └─ tests/
+│     └─ openapi/                    <-- FastAPI auto-generates Swagger at /docs
+│        └─ chatbot_openapi.json
 │
 ├─ postman/                           <-- API testing
 │  ├─ DigitalBank.postman_collection.json
@@ -192,23 +208,89 @@ digital-bank/                        <-- Root repo (monorepo)
 - Docker
 - Python 3.10+
 
-## How to Run (Dev)
+## Setup Instruction
 
-```sh
+### 1️⃣ Install dependencies
+
+Run from the root:
+
+```bash
 pnpm install
+```
+
+### 2️⃣ Start infrastructure (DB + Eureka)
+
+```bash
+docker-compose -f infra/docker-compose.dev.yml up -d
+```
+
+This will start:
+
+* **Postgres** (with `postgres.dev.env`)
+* **Eureka Server** (service discovery)
+
+Check Eureka UI at:  
+👉 [http://localhost:8761](http://localhost:8761)
+
+---
+
+### 3️⃣ Generate Prisma clients
+
+Run once for each service from root folder:
+
+```bash
+pnpm -C packages/auth-service prisma:generate
+pnpm -C packages/account-service prisma:generate
+```
+
+### 4️⃣ Apply database migrations
+
+```bash
+pnpm -C packages/auth-service prisma:migrate
+pnpm -C packages/account-service prisma:migrate
+```
+
+---
+
+### 5️⃣ Run microservices
+
+Each service can be started individually:
+
+```bash
+pnpm -C packages/auth-service dev
+pnpm -C packages/account-service dev
+pnpm -C packages/bff dev
+pnpm -C python/chatbot-service dev   # if defined in requirements
+```
+
+Or run all together (if you add a root script later):
+
+```bash
 pnpm dev
-# or
-cd infra
-# set env files in infra/env/*.env
-# then
-pnpm run docker:dev
 ```
 
-Or use Docker Compose:
+---
 
-```sh
-docker-compose -f infra/docker-compose.dev.yml up --build
-```
+## 📖 API Documentation (Swagger)
+
+Each service exposes Swagger/OpenAPI documentation:
+
+* **Auth Service** → [http://localhost:4001/api-docs](http://localhost:4001/api-docs)
+* **Account Service** → [http://localhost:4002/api-docs](http://localhost:4002/api-docs)
+* **BFF (API Gateway)** → [http://localhost:4000/api-docs](http://localhost:4000/api-docs)
+* **Chatbot (FastAPI)** → [http://localhost:5000/docs](http://localhost:5000/docs)
+
+---
+
+## 🔎 Service Discovery (Eureka)
+
+* **Eureka Dashboard:** [http://localhost:8761](http://localhost:8761)
+* All services (`auth-service`, `account-service`, `bff`, `chatbot`) will **auto-register** here.
+* BFF uses Eureka to discover backend microservices dynamically.
+
+---
+
+
 
 ## Health URLs
 - BFF: http://localhost:4000/api/v1/healthz
@@ -227,11 +309,7 @@ pnpm migrate:auth
 pnpm migrate:account
 ```
 
-## Seeding
-```
-pnpm -C packages/auth-service seed
-pnpm -C packages/account-service seed
-```
+
 
 ## Danger: Reset DB
 ```
@@ -245,7 +323,3 @@ Set {{baseUrl}} to http://localhost:4000/api/v1
 ## OpenAPI
 BFF OpenAPI spec at /docs (dev only)
 
-## Scripts
-- `pnpm dev:bff`, `dev:auth`, `dev:account`
-- `pnpm migrate:auth`, `migrate:account`
-- `pnpm db:reset`
