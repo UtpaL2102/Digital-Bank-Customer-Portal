@@ -20,6 +20,21 @@
     "migrate:account": "pnpm -C packages/account-service migrate",
     "db:reset": "pnpm -C packages/auth-service db:reset && pnpm -C packages/account-service db:reset"
   },
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@digital-bank/common/*": [
+        "packages/common/src/*"
+      ]
+    }
+  },
   "lint-staged": {
     "packages/**/*.{ts,js,tsx}": [
       "eslint --fix",
@@ -27,10 +42,13 @@
     ]
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "@types/uuid": "^10.0.0",
+    "concurrently": "^8.2.2",
+    "tsx": "^4.20.5"
   },
   "dependencies": {
     "husky": "^9.1.7",
-    "prisma": "^5.22.0"
+    "prisma": "^5.22.0",
+    "uuid": "^12.0.0"
   }
 }
