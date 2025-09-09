@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "..",
+    "module": "NodeNext",
+"moduleResolution": "NodeNext",
+"target": "ES2022",
+"lib": ["ES2022"],
+"esModuleInterop": true,
+"skipLibCheck": true,
+"strict": true,
+    "paths": {
+      "@digital-bank/common/*": ["../common/src/*"],
+    }
+  },
+"include": ["src", "src//*.d.ts", "src//.ts", "src/types/**/.d.ts"]
+}
