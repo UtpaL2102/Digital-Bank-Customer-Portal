@@ -9,4 +9,6 @@ authRouter.post("/auth/register", validate(RegisterSchema), ctrl.register);
 
 authRouter.post("/auth/login", validate(LoginSchema), ctrl.login);
 
+// authRouter.post("/auth/register-admin", ctrl.registerAdmin);
+
 export default authRouter;

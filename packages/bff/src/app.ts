@@ -1,4 +1,5 @@
 import express from 'express';
+import dotenv from "dotenv";
 import helmet from 'helmet';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
@@ -7,12 +8,17 @@ import { errorHandler } from '../../common/src/errors.js';
 import swaggerUi from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';   // ✅ add this
+import { fileURLToPath } from 'url'; 
 import authBffRouter from "./routes/auth.bff.routes.js";
+import accountsBffRouter from "./routes/accounts.bff.routes.js";
+import { requireAuth, requireKycVerified } from "./middlewares/auth.middleware.js";
+import kycBffRouter from "./routes/kyc.bff.routes.js";
 
+dotenv.config();
 // ✅ emulate __dirname for ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 
 const app = express();
 app.use(helmet());
@@ -43,6 +49,16 @@ if (process.env.NODE_ENV !== 'production') {
 
 // TODO: Add routes
 app.use(authBffRouter);
+
+// Everything below requires a valid token
+app.use(requireAuth);
+
+// KYC endpoints allowed pre-verified
+app.use(kycBffRouter);
+
+// Banking endpoints (require verified KYC)
+app.use(requireKycVerified, accountsBffRouter);
+
 // app.use('/api/v1/accounts', ...)
 // app.use('/api/v1/transfers', ...)
 // app.use('/api/v1/limits', ...)

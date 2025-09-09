@@ -1,9 +1,9 @@
 import { SignJWT } from "jose";
 import crypto from "crypto";
 
-const secret = () => new TextEncoder().encode(process.env.AUTH_JWT_SECRET || "dev_secret");
+const secret = () => new TextEncoder().encode(process.env.AUTH_JWT_SECRET || "dev_super_secret_change_me");
 const issuer = process.env.JWT_ISSUER || "digital-bank-auth";
-const audience = process.env.JWT_AUDIENCE || "digital-bank-web";
+const audience = process.env.JWT_AUDIENCE || "digitalbank";
 const accessTtl = process.env.ACCESS_TOKEN_TTL || "900s";
 const refreshTtl = process.env.REFRESH_TOKEN_TTL || "7d";
 
