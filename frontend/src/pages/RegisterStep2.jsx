@@ -19,14 +19,6 @@ export default function RegisterStep2() {
           <h1 className="text-xl font-semibold text-gray-800">DigitalSecure</h1>
         </header>
 
-        {/* Progress Pill */}
-        <div className="flex justify-center mb-8">
-          <div className="progress-pill">
-            <div className="step">Account</div>
-            <div className="step active">KYC</div>
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Form */}
           <div className="lg:col-span-2">
@@ -34,7 +26,7 @@ export default function RegisterStep2() {
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900">KYC Verification</h2>
                 <p className="text-gray-500 mt-1">
-                  Step 2 of 2 — Provide your KYC details for verification.
+                  Provide your KYC details for verification.
                 </p>
               </div>
 

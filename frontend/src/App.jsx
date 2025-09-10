@@ -32,10 +32,10 @@ import Unauthorized401 from "./pages/Unauthorized401";
 import Forbidden403 from "./pages/Forbidden403";
 import NotFound404 from "./pages/NotFound404";
 import NotificationsPage from "./pages/NotificationsPage";
-
-
-
-
+import MinimalDashboard from "./pages/MinimalDashboard";
+import VerifyAccount from "./pages/VerifyAccount";
+import AdminDashboard from "./pages/AdminDashboard";
+import TwoFactorSetup from "./pages/TwoFactorSetup";
 
 
 
@@ -57,6 +57,7 @@ export default function App() {
         <Route path="/register-step1" element={<RegisterStep1 />} />
         <Route path="/register-step2" element={<RegisterStep2 />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/minimal-dashboard" element={<MinimalDashboard />} />
         <Route path="/transfer-step1" element={<TransferStep1 />} />
         <Route path="/transfer-details" element={<TransferDetails />} />
         <Route path="/transfer-review" element={<TransferReview />} />
@@ -81,7 +82,9 @@ export default function App() {
         <Route path="/forbidden" element={<Forbidden403 />} />
         <Route path="*" element={<NotFound404 />} />
         <Route path="/notifications-list" element={<NotificationsPage />} />
-
+        <Route path="/verify-account" element={<VerifyAccount />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/two-factor-setup" element={<TwoFactorSetup />} />
 
 
 

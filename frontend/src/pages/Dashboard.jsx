@@ -95,15 +95,6 @@ export default function Dashboard() {
         </nav>
 
         <div className="mt-auto">
-  {/* Profile -> /profile */}
-  <button
-    type="button"
-    onClick={() => navigate("/profile")}
-    className="nav-link text-left"
-  >
-    <span className="material-icons mr-3">person_outline</span>
-    Profile
-  </button>
 
   {/* Profile & Security -> /profile-security */}
   <button

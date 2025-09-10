@@ -1,0 +1,32 @@
+:root {
+  --navy-blue: #001BB7;
+  --bright-blue: #0046FF;
+  --vibrant-orange: #FF8040;
+  --neutral-background: #F5F7FA;
+  --neutral-panel: #F0F2F5;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+.text-gradient {
+  background: linear-gradient(to right, var(--navy-blue), var(--bright-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.button-glow:hover {
+  box-shadow: 0 0 20px 5px rgba(0, 70, 255, 0.3);
+}
+
+
+.signin-link {
+  color: #2563eb; /* blue */
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.signin-link:hover {
+  text-decoration: underline;
+}

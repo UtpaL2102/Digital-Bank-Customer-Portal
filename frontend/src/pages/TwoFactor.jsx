@@ -1,9 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../TwoFactor.css";
 
 export default function TwoFactor() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (value, index) => {
     if (/^\d?$/.test(value)) {
@@ -29,20 +32,34 @@ export default function TwoFactor() {
     const otpCode = otp.join("");
     if (otpCode !== "123456") {
       setError(true);
+      setSuccess(false);
     } else {
       setError(false);
-      alert("Successfully verified!");
+      setSuccess(true);
+
+      // ✅ Redirect after short delay
+      setTimeout(() => {
+        navigate("/minimal-dashboard");
+      }, 1500); // 1.5s delay for toast visibility
     }
   };
 
   return (
-    <div className="bg-[#F5F7FA] min-h-screen">
+    <div className="bg-[#F5F7FA] min-h-screen relative">
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
           <h1 className="text-xl font-semibold text-gray-900">DigitalSecure</h1>
         </div>
       </header>
+
+      {/* Toast Notification */}
+      {success && (
+        <div className="fixed top-5 right-5 bg-green-100 border border-green-300 text-green-800 px-4 py-2 rounded-lg shadow-md flex items-center gap-2 animate-fade-in">
+          <span className="material-icons text-green-600">check_circle</span>
+          <span className="text-sm font-medium">Verification successful!</span>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -59,7 +76,7 @@ export default function TwoFactor() {
                 </h2>
               </div>
               <p className="mt-2 text-sm text-gray-600">
-                Enter the 6-digit code from your authenticator app.
+                Enter the 6-digit code
               </p>
             </div>
 
