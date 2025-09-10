@@ -124,3 +124,29 @@ model Notification {
 
   @@index([user_id])
 }
+
+model AdminInvite {
+  id          String   @id @default(uuid()) @db.Uuid
+  token_hash  String
+  email       String
+  created_by  String   @db.Uuid
+  created_at  DateTime @default(now())
+  expires_at  DateTime
+  used        Boolean  @default(false)
+  used_at     DateTime?
+  used_by     String?  @db.Uuid
+  note        String?
+  @@index([email])
+}
+
+model AdminApiKey {
+  id          String   @id @default(uuid()) @db.Uuid
+  user_id     String   @db.Uuid
+  key_hash    String
+  name        String?
+  created_at  DateTime @default(now())
+  expires_at  DateTime?
+  revoked     Boolean  @default(false)
+
+  @@index([user_id])
+}
