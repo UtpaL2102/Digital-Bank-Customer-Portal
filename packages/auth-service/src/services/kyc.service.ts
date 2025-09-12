@@ -2,8 +2,8 @@
 import crypto from "crypto";
 import { v2 as cloudinary } from "cloudinary";
 // import {PrismaClient } from "@prisma/client";
-import { prisma } from '../db/prismaClient';
-import { configureCloudinary, signViewUrl } from "../storage/cloudinary";
+import { prisma } from '../db/prismaClient.js';
+import { configureCloudinary, signViewUrl } from "../storage/cloudinary.js";
 import { createNotification } from "./notification.service";
 import multer from 'multer';
 
