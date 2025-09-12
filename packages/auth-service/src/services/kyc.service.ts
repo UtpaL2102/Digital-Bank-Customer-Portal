@@ -59,14 +59,15 @@ export async function submitKyc(userId: string, payload: {
   document_type: string; document_number: string;
   issue_date?: string; expiry_date?: string; address_line1: string; city: string; state: string; postal_code: string; dob?: string;
 }) {
-  // Enforce resubmission limit (3/day)
-  const since = new Date(); since.setHours(0,0,0,0);
-  const count = await prisma.auditLog.count({
-    where: { user_id: userId, action: "KYC_SUBMITTED", performed_at: { gte: since } }
-  });
-  if (count >= MAX_SUBMITS_PER_DAY) {
-    throw { status: 429, code: "RESUBMISSION_LIMIT_REACHED", message: "You reached the maximum KYC submissions for today" };
-  }
+  try {
+    // Enforce resubmission limit (3/day)
+    const since = new Date(); since.setHours(0,0,0,0);
+    const count = await prisma.auditLog.count({
+      where: { user_id: userId, action: "KYC_SUBMITTED", performed_at: { gte: since } }
+    });
+    if (count >= MAX_SUBMITS_PER_DAY) {
+      throw { status: 429, code: "RESUBMISSION_LIMIT_REACHED", message: "You reached the maximum KYC submissions for today" };
+    }
 
   // Required docs present?
   const docs = await prisma.kycDocument.findMany({ where: { user_id: userId } });
@@ -116,7 +117,11 @@ export async function submitKyc(userId: string, payload: {
     console.warn("submitKyc: createNotification failed", e);
   }
   return { status: "verifying" };
+  } catch (err) {
+    throw err;
+  }
 }
+
 
 export async function listPending(limit = 50) {
   const items = await prisma.kycDetails.findMany({

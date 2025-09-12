@@ -1,0 +1,1768 @@
+{
+	"info": {
+		"_postman_id": "e4c451c1-d389-4051-9741-2d0fcff47ed0",
+		"name": "Digital Bank BFF v1",
+		"description": "BFF endpoints for Digital Bank (v1). Set {{baseUrl}} and {{token}} variables.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37896447"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register-User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"name\": \"Alex\",\n \"email\": \"a@x.com\",\n \"phone_number\": \"+12025550199\",\n \"password\": \"Passw0rd!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login-User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"email\": \"a@x.com\",\n \"password\": \"Passw0rd!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2FA verify",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"code\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/2fa/verify",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"2fa",
+								"verify"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Me",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"name\": \"Alex J\",\n \"phone_number\": \"+12025550000\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"current_password\": \"Old!\",\n \"new_password\": \"New!23\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/change-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"change-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sessions list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/sessions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"sessions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Revoke session",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/sessions/{{sessionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"sessions",
+								"{{sessionId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Revoke all sessions",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/sessions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"sessions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2FA enable",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/2fa/enable",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"2fa",
+								"enable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2FA disable",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"code\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/2fa/disable",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"2fa",
+								"disable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Backup codes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/2fa/backup-codes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"2fa",
+								"backup-codes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Notification prefs (get)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/notification-prefs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"notification-prefs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Notification prefs (update)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"email_enabled\": true,\n \"sms_enabled\": true,\n \"low_balance_threshold\": 200\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/notification-prefs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"notification-prefs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "KYC Submit",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoidXNlciIsInN0YXR1cyI6InZlcmlmeWluZyIsInN1YiI6IjViZWVhZThmLTc5ZTMtNDQ1MC1iZjUzLTk3ZDRiNTNiMDllMCIsImlzcyI6ImRpZ2l0YWwtYmFuay1hdXRoIiwiYXVkIjoiZGlnaXRhbGJhbmsiLCJpYXQiOjE3NTczMjQ2MDksImV4cCI6MTc1NzMyNTUwOX0.zmOhwaDT6mOnLZkkqNsuKwEkzE49fYaDBZ9wJtA9XyE"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"document_type\":\"passport\", \"document_number\":\"P1234567\", \"address_line1\":\"221B Baker St\", \"city\":\"London\", \"state\":\"LDN\", \"postal_code\":\"NW16XE\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/kyc/submit",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"kyc",
+								"submit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "KYC Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoidXNlciIsInN0YXR1cyI6InZlcmlmeWluZyIsInN1YiI6IjViZWVhZThmLTc5ZTMtNDQ1MC1iZjUzLTk3ZDRiNTNiMDllMCIsImlzcyI6ImRpZ2l0YWwtYmFuay1hdXRoIiwiYXVkIjoiZGlnaXRhbGJhbmsiLCJpYXQiOjE3NTczMjQ2MDksImV4cCI6MTc1NzMyNTUwOX0.zmOhwaDT6mOnLZkkqNsuKwEkzE49fYaDBZ9wJtA9XyE"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:4000/api/v1/kyc/status",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"kyc",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register-Admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"admin2@example.com\",\"password\":\"StrongP@ss2\",\"name\":\"Admin 2\",\"secret\":\"some_admin_signup_secret\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/admin/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login-Admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"admin2@example.com\",\"password\":\"StrongP@ss2\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/admin/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "KYC-Notification",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoidXNlciIsInN0YXR1cyI6InZlcmlmeWluZyIsInN1YiI6IjViZWVhZThmLTc5ZTMtNDQ1MC1iZjUzLTk3ZDRiNTNiMDllMCIsImlzcyI6ImRpZ2l0YWwtYmFuay1hdXRoIiwiYXVkIjoiZGlnaXRhbGJhbmsiLCJpYXQiOjE3NTc0MTgwNjcsImV4cCI6MTc1NzQxODk2N30.yeb8tBCNWKFmJjBL0KzTlk5EeIrCAIKkKPuOBSieaSI"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:4000/api/v1/notifications",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"notifications"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin-Approve KYC",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYWRtaW4iLCJzdGF0dXMiOiJ2ZXJpZmllZCIsInN1YiI6IjZlZTY0MTAzLTQyZDMtNGIwNi1iZTYyLTNmZTU1MWI2MGJmNCIsImlzcyI6ImRpZ2l0YWwtYmFuay1hdXRoIiwiYXVkIjoiZGlnaXRhbGJhbmsiLCJpYXQiOjE3NTc0MjM4MDksImV4cCI6MTc1NzQyNDcwOX0.Jtx1C9LGlSLCpuqa8WGWazkASS1o3rIVavElqaYLWl0"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"score\":0.95,\"note\":\"Looks good\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/admin/kyc/5beeae8f-79e3-4450-bf53-97d4b5309e0/approve",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"kyc",
+								"5beeae8f-79e3-4450-bf53-97d4b5309e0",
+								"approve"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin-Invite-Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYWRtaW4iLCJzdGF0dXMiOiJ2ZXJpZmllZCIsInN1YiI6IjZlZTY0MTAzLTQyZDMtNGIwNi1iZTYyLTNmZTU1MWI2MGJmNCIsImlzcyI6ImRpZ2l0YWwtYmFuay1hdXRoIiwiYXVkIjoiZGlnaXRhbGJhbmsiLCJpYXQiOjE3NTc0OTIxMDEsImV4cCI6MTc1NzQ5MzAwMX0.9QTUXddLUmJmQH8XefGpgLhT6H192nor9yace9HujZw"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"newadmin@example.com\",\"daysValid\":7,\"note\":\"Recruiting Ops\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4001/admin/invite",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4001",
+							"path": [
+								"admin",
+								"invite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin-Invite",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYWRtaW4iLCJzdGF0dXMiOiJ2ZXJpZmllZCIsInN1YiI6IjZlZTY0MTAzLTQyZDMtNGIwNi1iZTYyLTNmZTU1MWI2MGJmNCIsImlzcyI6ImRpZ2l0YWwtYmFuay1hdXRoIiwiYXVkIjoiZGlnaXRhbGJhbmsiLCJpYXQiOjE3NTc0OTIxMDEsImV4cCI6MTc1NzQ5MzAwMX0.9QTUXddLUmJmQH8XefGpgLhT6H192nor9yace9HujZw"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"newadmin@example.com\",\"daysValid\":7,\"note\":\"Recruiting Ops\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4001/admin/invite",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4001",
+							"path": [
+								"admin",
+								"invite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin-Register-With-Invite",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"token\":\"7448a4f7780175461d812e2a112cf7e424917f6447984b6f5bcbee0aa81c3a5e\",\"email\":\"newadmin@example.com\",\"password\":\"Admin12345\",\"name\":\"New Admin\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4001/admin/register-with-invite",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4001",
+							"path": [
+								"admin",
+								"register-with-invite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin-Api-Key-Access",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYWRtaW4iLCJzdGF0dXMiOiJ2ZXJpZmllZCIsInN1YiI6IjRkNjlkZWMxLTJmNTYtNDY1NC04M2Y3LTI1YTgwMTk2YTZiNCIsImlzcyI6ImRpZ2l0YWwtYmFuay1hdXRoIiwiYXVkIjoiZGlnaXRhbGJhbmsiLCJpYXQiOjE3NTc0OTIyNTgsImV4cCI6MTc1NzQ5MzE1OH0.uUm5uBHDPON3SjEAZUDIxzodP13e6QXS3m_EuOV9AuY"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"CI/CD Bot\",\"daysValid\":365}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4001/admin/apikeys",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4001",
+							"path": [
+								"admin",
+								"apikeys"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin-Api-Key-Generation",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYWRtaW4iLCJzdGF0dXMiOiJ2ZXJpZmllZCIsInN1YiI6IjRkNjlkZWMxLTJmNTYtNDY1NC04M2Y3LTI1YTgwMTk2YTZiNCIsImlzcyI6ImRpZ2l0YWwtYmFuay1hdXRoIiwiYXVkIjoiZGlnaXRhbGJhbmsiLCJpYXQiOjE3NTc0OTIyNTgsImV4cCI6MTc1NzQ5MzE1OH0.uUm5uBHDPON3SjEAZUDIxzodP13e6QXS3m_EuOV9AuY"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"CI/CD Bot\",\"daysValid\":365}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4001/admin/apikeys",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4001",
+							"path": [
+								"admin",
+								"apikeys"
+							]
+						},
+						"description": "Genration of access toekn for admin to perform direct admin actions without registeration."
+					},
+					"response": []
+				},
+				{
+					"name": "Admin-Work-Using-API-Keys",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "ApiKey 31490d25685ca90cb48a530d42471449d7325760d4322fa6"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"score\":0.98,\"note\":\"Approved via API key\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4001/admin/kyc/5beeae8f-79e3-4450-bf53-97d4b53b09e0/approve",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4001",
+							"path": [
+								"admin",
+								"kyc",
+								"5beeae8f-79e3-4450-bf53-97d4b53b09e0",
+								"approve"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "KYC Doc Upload ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoidXNlciIsInN0YXR1cyI6InBlbmRpbmdfa3ljIiwic3ViIjoiZTMzMzZiYjEtOWExYy00NjNmLTk5NjYtZjU0ODQ1YjYwN2Y4IiwiaXNzIjoiZGlnaXRhbC1iYW5rLWF1dGgiLCJhdWQiOiJkaWdpdGFsYmFuayIsImlhdCI6MTc1NzY2MDA5NSwiZXhwIjoxNzU3NjYwOTk1fQ.-7yNpVB9Pj5Xx58CsDK8vJMwGmg0vVd52DjO4XNwViQ"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "doc_kind",
+									"value": "id_front",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "postman-cloud:///1f08c838-35ad-4d60-afb4-8682f0d194db"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/kyc/documents",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"kyc",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "KYC Doc Upload Selfie",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoidXNlciIsInN0YXR1cyI6InBlbmRpbmdfa3ljIiwic3ViIjoiZTMzMzZiYjEtOWExYy00NjNmLTk5NjYtZjU0ODQ1YjYwN2Y4IiwiaXNzIjoiZGlnaXRhbC1iYW5rLWF1dGgiLCJhdWQiOiJkaWdpdGFsYmFuayIsImlhdCI6MTc1NzY2MDA5NSwiZXhwIjoxNzU3NjYwOTk1fQ.-7yNpVB9Pj5Xx58CsDK8vJMwGmg0vVd52DjO4XNwViQ"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "doc_kind",
+									"value": "selfie",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "postman-cloud:///1f08c25f-4a88-49d0-8be1-744bf638d6bd"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/kyc/documents",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"kyc",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Accounts",
+			"item": [
+				{
+					"name": "Accounts list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/accounts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"accounts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Account detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/accounts/{{accountId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"accounts",
+								"{{accountId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Transactions list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/transactions?accountId={{accountId}}&page=1&pageSize=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "accountId",
+									"value": "{{accountId}}"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Transaction detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/transactions/{{transactionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"transactions",
+								"{{transactionId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Statements list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/statements?accountId={{accountId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"statements"
+							],
+							"query": [
+								{
+									"key": "accountId",
+									"value": "{{accountId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generate statement",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"account_id\": \"{{accountId}}\",\n \"date_from\": \"2025-07-01\",\n \"date_to\": \"2025-07-31\",\n \"format\": \"PDF\",\n \"delivery\": \"both\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/statements",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"statements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get statement",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/statements/{{statementId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"statements",
+								"{{statementId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Notifications list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/notifications",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"notifications"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Mark notification read",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/notifications/{{notificationId}}/read",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"notifications",
+								"{{notificationId}}",
+								"read"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Mark all read",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/notifications/read-all",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"notifications",
+								"read-all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Beneficiaries list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/beneficiaries",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"beneficiaries"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add beneficiary",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"name\": \"John Doe\",\n \"bank_name\": \"DB Main\",\n \"account_number\": \"00112233\",\n \"ifsc_swift\": \"DBIN0001\",\n \"currency\": \"INR\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/beneficiaries",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"beneficiaries"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update beneficiary",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"name\": \"John D\",\n \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/beneficiaries/{{beneficiaryId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"beneficiaries",
+								"{{beneficiaryId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete beneficiary",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/beneficiaries/{{beneficiaryId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"beneficiaries",
+								"{{beneficiaryId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Limits (per account)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/limits?accountId={{accountId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"limits"
+							],
+							"query": [
+								{
+									"key": "accountId",
+									"value": "{{accountId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Submit limit request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"account_id\": \"{{accountId}}\",\n \"requested_daily_limit\": 7500,\n \"requested_monthly_limit\": 30000,\n \"reason\": \"Higher payroll\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/limit-requests",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"limit-requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "My limit requests",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/limit-requests",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"limit-requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Loans list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/loans",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"loans"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Loan detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/loans/{{loanId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"loans",
+								"{{loanId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Loan schedule",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/loans/{{loanId}}/schedule",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"loans",
+								"{{loanId}}",
+								"schedule"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Transfers",
+			"item": [
+				{
+					"name": "Create internal transfer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Idempotency-Key",
+								"value": "00000000-0000-4000-8000-000000000001"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"from_account_id\": \"{{accountId}}\",\n \"to_account_id\": \"{{toAccountId}}\",\n \"amount\": 500,\n \"description\": \"Monthly transfer\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/transfer",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"transfer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create external transfer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Idempotency-Key",
+								"value": "00000000-0000-4000-8000-000000000002"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"from_account_id\": \"{{accountId}}\",\n \"to_beneficiary_id\": \"{{beneficiaryId}}\",\n \"amount\": 500,\n \"description\": \"Rent\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/transfer",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"transfer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Scheduled transfers list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/scheduled-transfers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scheduled-transfers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create scheduled transfer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"from_account_id\": \"{{accountId}}\",\n \"to_account_id\": \"{{toAccountId}}\",\n \"amount\": 500,\n \"frequency\": \"monthly\",\n \"next_run_at\": \"2025-09-01T09:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/scheduled-transfers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scheduled-transfers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update scheduled transfer",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"amount\": 600,\n \"frequency\": \"monthly\",\n \"next_run_at\": \"2025-10-01T09:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/scheduled-transfers/{{scheduledId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scheduled-transfers",
+								"{{scheduledId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pause scheduled transfer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/scheduled-transfers/{{scheduledId}}/pause",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scheduled-transfers",
+								"{{scheduledId}}",
+								"pause"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Resume scheduled transfer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/scheduled-transfers/{{scheduledId}}/resume",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scheduled-transfers",
+								"{{scheduledId}}",
+								"resume"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel scheduled transfer",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/scheduled-transfers/{{scheduledId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scheduled-transfers",
+								"{{scheduledId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "List limit requests",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/admin/limit-requests",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"limit-requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Approve request",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"note\": \"Approved\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/limit-requests/{{limitRequestId}}/approve",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"limit-requests",
+								"{{limitRequestId}}",
+								"approve"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Decline request",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"note\": \"Insufficient docs\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/limit-requests/{{limitRequestId}}/decline",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"limit-requests",
+								"{{limitRequestId}}",
+								"decline"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Employees list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/admin/employees",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"employees"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create employee",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"user_id\": \"{{userId}}\",\n \"branch_id\": \"{{branchId}}\",\n \"position\": \"Teller\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/employees",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"employees"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update employee",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"position\": \"Ops\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/employees/{{employeeId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"employees",
+								"{{employeeId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete employee",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/admin/employees/{{employeeId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"employees",
+								"{{employeeId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Branches list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/admin/branches",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"branches"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create branch",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"code\": \"003\",\n \"name\": \"North\",\n \"address\": \"Hill Rd\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/branches",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"branches"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update branch",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"address\": \"New address\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/branches/{{branchId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"branches",
+								"{{branchId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete branch",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/admin/branches/{{branchId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"branches",
+								"{{branchId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Audit logs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/admin/audit-logs?page=1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"audit-logs"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:4000/api/v1"
+		},
+		{
+			"key": "token",
+			"value": ""
+		}
+	]
+}

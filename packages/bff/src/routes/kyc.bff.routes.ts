@@ -24,19 +24,36 @@ router.post("/api/v1/kyc/documents", kycProxy); // multipart passthrough
 
 router.post("/api/v1/kyc/submit", async (req, res, next) => {
   try {
-    const r = await (
-      await fetch(`${target}/kyc/submit`, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          ...(forwardContextHeaders(req) as any),
-        },
-        body: JSON.stringify(req.body),
-      })
-    ).json();
-    res.json(r);
-  } catch (e) {
-    next(e);
+    const response = await fetch(`${target}/kyc/submit`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        ...(forwardContextHeaders(req) as any),
+      },
+      body: JSON.stringify(req.body),
+    });
+
+    const data = await response.json() as { error?: { code: string; message: string } };
+
+    if (!response.ok) {
+      return res.status(response.status).json({
+        error: {
+          code: data.error?.code || "KYC_SUBMISSION_ERROR",
+          message: data.error?.message || "Failed to submit KYC"
+        }
+      });
+    }
+
+    res.json(data);
+  } catch (e: any) {
+    console.error("KYC Submit Error:", e);
+    res.status(500).json({
+      error: {
+        code: "INTERNAL_ERROR",
+        message: "An unexpected error occurred while submitting KYC",
+        requestId: req.headers["x-request-id"]
+      }
+    });
   }
 });
 
