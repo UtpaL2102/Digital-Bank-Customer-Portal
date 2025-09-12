@@ -13,10 +13,28 @@ res.status(201).json({ id: doc.id, public_id: doc.public_id });
 }
 
 export async function submit(req: Request, res: Response) {
-const userId = (req as any).user.id as string;
-const body = KycSubmitSchema.parse(req.body);
-const r = await svc.submitKyc(userId, body);
-res.json(r);
+  try {
+    const userId = (req as any).user.id as string;
+    const body = KycSubmitSchema.parse(req.body);
+    const r = await svc.submitKyc(userId, body);
+    res.json(r);
+  } catch (err: any) {
+    console.error('KYC Submit Error:', err);
+    if (err?.status) {
+      return res.status(err.status).json({ 
+        error: { 
+          code: err.code || "ERROR", 
+          message: err.message 
+        } 
+      });
+    }
+    res.status(500).json({ 
+      error: { 
+        code: "INTERNAL_ERROR", 
+        message: "An unexpected error occurred while processing your KYC submission" 
+      } 
+    });
+  }
 }
 
 export async function status(req: Request, res: Response) {
