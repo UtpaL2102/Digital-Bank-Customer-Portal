@@ -1,6 +1,6 @@
 
 import crypto from "crypto";
-import { prisma } from "../db/prismaClient";
+import { prisma } from "../db/prismaClient.js";
 
 export function genInviteToken(len = 32) {
   return crypto.randomBytes(len).toString("hex"); // 64 hex chars
