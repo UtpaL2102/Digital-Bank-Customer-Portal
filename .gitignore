@@ -155,3 +155,8 @@ cache/
 ehthumbs.db
 Icon?
 Desktop.ini
+
+# Ignore prisma generated clients
+packages/*/generated/prisma-client/
+packages/*/generated/prisma-client/**
+node_modules/.prisma/
