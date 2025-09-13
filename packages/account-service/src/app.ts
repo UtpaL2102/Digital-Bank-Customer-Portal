@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { prisma } from "./db/prismaClient";
 import { errorHandler } from '../../common/src/errors';
 import accountsRouter from "./routes/account.routes";
+import transactionsRouter from "./routes/transaction.routes";
 dotenv.config({ override: true });
 const app = express();
 app.use(helmet());
@@ -15,6 +16,7 @@ app.use(express.json());
 // app.use('/accounts', ...)
 app.use("/api/v1/accounts", accountsRouter);
 // app.use('/transactions', ...)
+app.use("/api/v1/transactions", transactionsRouter);
 // app.use('/limits', ...)
 // app.use('/notifications', ...)
 // app.use('/healthz', ...)
