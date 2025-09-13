@@ -4,7 +4,7 @@ import cors from 'cors';
 import dotenv from "dotenv";
 import { prisma } from "./db/prismaClient";
 import { errorHandler } from '../../common/src/errors';
-
+import accountsRouter from "./routes/account.routes";
 dotenv.config({ override: true });
 const app = express();
 app.use(helmet());
@@ -13,6 +13,7 @@ app.use(express.json());
 
 // TODO: Add routes
 // app.use('/accounts', ...)
+app.use("/api/v1/accounts", accountsRouter);
 // app.use('/transactions', ...)
 // app.use('/limits', ...)
 // app.use('/notifications', ...)

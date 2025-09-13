@@ -6,6 +6,8 @@ export const accountsBffRouter = Router();
 
 accountsBffRouter.get("/api/v1/accounts", async (req, res, next) => {
 try {
+    console.log('[BFF] forwarding request to account-service', { path: '/accounts', user: (req as any).user?.id });
+
 const r = await accountClient.get("/accounts", { headers: forwardContextHeaders(req) });
 res.status(r.status).json(r.data);
 } catch (e: any) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
