@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import { prisma } from "../db/prismaClient";
+import { prisma} from "../db/prismaClient";
 import { signAccessToken, signRefreshToken, hashToken } from "../services/auth.service";
 
 export const register = async (req: Request, res: Response) => {
-const { name, email, phone_number, password } = req.body as { name: string; email: string; phone_number?: string; password: string };
 
-const existing = await prisma.user.findUnique({ where: { email } });
+    const { name, email, phone_number, password } = req.body as { name: string; email: string; phone_number?: string; password: string };
+
+    const existing = await prisma.user.findUnique({ where: { email } });
 if (existing) return res.status(409).json({ error: { code: "EMAIL_IN_USE", message: "Email already registered" } });
 
 const password_hash = await bcrypt.hash(password, 12);
