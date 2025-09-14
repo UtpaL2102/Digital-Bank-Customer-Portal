@@ -13,6 +13,7 @@ import transferRouter from "./routes/transfers.routes";
 import scheduledRouter from "./routes/scheduledTransfers.routes";
 import beneficiariesRoutes from "./routes/beneficiaries.routes";
 import limitsRoutes from "./routes/limits.routes";
+import loansRouter from "./routes/loans.routes";
 
 dotenv.config({ override: true });
 const app = express();
@@ -37,6 +38,8 @@ app.use("/api/v1/beneficiaries", beneficiariesRoutes);
 
 // app.use('/notifications', ...)
 app.use("/api/v1/notifications", notificationsRouter);
+
+app.use("/api/v1/loans", loansRouter);
 
 // app.use('/healthz', ...)
 // Health
