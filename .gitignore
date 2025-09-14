@@ -166,3 +166,10 @@ node_modules/.prisma/
 # General Node / TS build outputs
 dist/
 node_modules/
+
+# Prisma generated client
+packages/account-service/generated/prisma-client/
+
+# Prisma generated client
+packages/auth-service/generated/prisma-client/
+
