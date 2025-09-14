@@ -16,6 +16,8 @@ import kycBffRouter from "./routes/kyc.bff.routes.js";
 import transactionsBffRouter from "./routes/transactions.bff.routes.js";
 import statementsBffRouter from "./routes/statements.bff.routes.js";
 import notificationsRouter from "./routes/notification.acc.bff.routes.js";
+import beneficiariesBff from "./routes/beneficiaries.bff.routes.js";
+import limitsBff from "./routes/limits.bff.routes.js";
 
 dotenv.config();
 // ✅ emulate __dirname for ESM
@@ -70,6 +72,9 @@ app.use(statementsBffRouter);
 // app.use('/api/v1/transfers', ...)
 
 // app.use('/api/v1/limits', ...)
+app.use(beneficiariesBff);
+app.use(limitsBff);
+
 // app.use('/api/v1/notifications', ...)
 app.use(notificationsRouter);
 
