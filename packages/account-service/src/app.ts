@@ -8,6 +8,10 @@ import accountsRouter from "./routes/account.routes";
 import transactionsRouter from "./routes/transaction.routes";
 import statementsRouter from "./routes/statement.routes";
 import downloadRouter from "./routes/statements.download";
+import notificationsRouter from "./routes/notification.routes";
+import transferRouter from "./routes/transfers.routes";
+import scheduledRouter from "./routes/scheduledTransfers.routes";
+
 dotenv.config({ override: true });
 const app = express();
 app.use(helmet());
@@ -17,12 +21,15 @@ app.use(express.json());
 // TODO: Add routes
 // app.use('/accounts', ...)
 app.use("/api/v1/accounts", accountsRouter);
+app.use(transferRouter);
+app.use(scheduledRouter);
 // app.use('/transactions', ...)
 app.use("/api/v1/transactions", transactionsRouter);
 app.use("/api/v1/statements", statementsRouter);
 app.use(downloadRouter);
 // app.use('/limits', ...)
 // app.use('/notifications', ...)
+app.use("/api/v1/notifications", notificationsRouter);
 // app.use('/healthz', ...)
 // Health
 app.get("/healthz", (_req, res) => res.status(200).send("ok"));

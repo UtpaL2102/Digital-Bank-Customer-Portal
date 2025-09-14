@@ -54,3 +54,40 @@ export const getAccount = async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Failed to retrieve account" });
   }
 };
+
+export const accountSummary = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    // total balance across accounts
+    const totals = await prisma.account.aggregate({
+      where: { user_id: userId, status: { not: "closed" } },
+      _sum: { balance: true },
+      _count: { id: true },
+    });
+
+    // balance grouped by account_type
+    const byType = await prisma.account.groupBy({
+      by: ["account_type"],
+      where: { user_id: userId, status: { not: "closed" } },
+      _sum: { balance: true },
+      _count: { id: true },
+    });
+
+    const result = {
+      totalBalance: (totals._sum?.balance ?? 0).toString?.() ?? String(totals._sum?.balance ?? 0),
+      accountCount: totals._count?.id ?? 0,
+      byType: byType.map((r) => ({
+        account_type: r.account_type,
+        balance: r._sum?.balance?.toString?.() ?? String(r._sum?.balance ?? 0),
+        count: r._count?.id ?? 0,
+      })),
+    };
+
+    return res.json({ summary: result });
+  } catch (err) {
+    console.error("accountSummary error:", err);
+    return res.status(500).json({ error: "Failed to retrieve account summary" });
+  }
+};

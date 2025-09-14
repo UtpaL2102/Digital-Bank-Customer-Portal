@@ -218,3 +218,15 @@ model AuditLog {
   details      String?
   performed_at DateTime @default(now())
 }
+
+model IdempotencyKey {
+  id         String   @id @default(uuid()) @db.Uuid
+  key        String   @unique
+  user_id    String   @db.Uuid
+  request    Json
+  response   Json?
+  status     String   @default("in_progress") // in_progress | completed | failed
+  created_at DateTime @default(now())
+
+  @@index([user_id])
+}
