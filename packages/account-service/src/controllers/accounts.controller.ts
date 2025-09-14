@@ -1,6 +1,15 @@
 import { Request, Response } from "express";
 import { prisma } from "../db/prismaClient";
 
+function formatAccount(a: any) {
+  return {
+    ...a,
+    balance: a.balance?.toString?.() ?? a.balance,
+    daily_limit: a.daily_limit?.toString?.() ?? a.daily_limit,
+    monthly_limit: a.monthly_limit?.toString?.() ?? a.monthly_limit,
+  };
+}
+
 export const listAccounts = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.id;
@@ -16,7 +25,7 @@ export const listAccounts = async (req: Request, res: Response) => {
       orderBy: { created_at: "desc" },
     });
 
-    return res.json({ accounts });
+    return res.json({ accounts: accounts.map(formatAccount) });
   } catch (err) {
     console.error("listAccounts error:", err);
     return res.status(500).json({ error: "Failed to retrieve accounts" });
@@ -39,7 +48,7 @@ export const getAccount = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Account not found" });
     }
 
-    return res.json({ account });
+     return res.json({ account: formatAccount(account) });
   } catch (err) {
     console.error("getAccount error:", err);
     return res.status(500).json({ error: "Failed to retrieve account" });
