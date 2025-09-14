@@ -14,6 +14,7 @@ import accountsBffRouter from "./routes/accounts.bff.routes.js";
 import { requireAuth, requireKycVerified } from "./middlewares/auth.middleware.js";
 import kycBffRouter from "./routes/kyc.bff.routes.js";
 import transactionsBffRouter from "./routes/transactions.bff.routes.js";
+import statementsBffRouter from "./routes/statements.bff.routes.js";
 
 dotenv.config();
 // ✅ emulate __dirname for ESM
@@ -61,6 +62,8 @@ app.use(kycBffRouter);
 app.use(requireKycVerified, accountsBffRouter);
 
 app.use(transactionsBffRouter);
+
+app.use(statementsBffRouter);
 
 // app.use('/api/v1/accounts', ...)
 // app.use('/api/v1/transfers', ...)
