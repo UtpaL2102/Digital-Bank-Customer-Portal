@@ -13,6 +13,13 @@ res.status(r.status).json(r.data);
 } catch (e: any) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
 });
 
+accountsBffRouter.get("/api/v1/accounts/summary", async (req, res, next) => {
+  try {
+    const r = await accountClient.get("/accounts/summary", { headers: forwardContextHeaders(req) });
+    return res.status(r.status).json(r.data);
+  } catch (e:any) { if (e.response) return res.status(e.response.status).json(e.response.data); next(e); }
+});
+
 accountsBffRouter.get("/api/v1/accounts/:accountId", async (req, res, next) => {
   try {
     const { accountId } = req.params;

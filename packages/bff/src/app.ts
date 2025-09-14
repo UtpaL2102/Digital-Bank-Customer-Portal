@@ -15,6 +15,7 @@ import { requireAuth, requireKycVerified } from "./middlewares/auth.middleware.j
 import kycBffRouter from "./routes/kyc.bff.routes.js";
 import transactionsBffRouter from "./routes/transactions.bff.routes.js";
 import statementsBffRouter from "./routes/statements.bff.routes.js";
+import notificationsRouter from "./routes/notification.acc.bff.routes.js";
 
 dotenv.config();
 // ✅ emulate __dirname for ESM
@@ -70,6 +71,7 @@ app.use(statementsBffRouter);
 
 // app.use('/api/v1/limits', ...)
 // app.use('/api/v1/notifications', ...)
+app.use(notificationsRouter);
 
 app.use(errorHandler);
 
