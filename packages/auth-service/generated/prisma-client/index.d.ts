@@ -1765,6 +1765,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     email: string | null
+    netbanking_id: string | null
     phone_number: string | null
     password_hash: string | null
     role: string | null
@@ -1780,6 +1781,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     email: string | null
+    netbanking_id: string | null
     phone_number: string | null
     password_hash: string | null
     role: string | null
@@ -1795,6 +1797,7 @@ export namespace Prisma {
     id: number
     name: number
     email: number
+    netbanking_id: number
     phone_number: number
     password_hash: number
     role: number
@@ -1812,6 +1815,7 @@ export namespace Prisma {
     id?: true
     name?: true
     email?: true
+    netbanking_id?: true
     phone_number?: true
     password_hash?: true
     role?: true
@@ -1827,6 +1831,7 @@ export namespace Prisma {
     id?: true
     name?: true
     email?: true
+    netbanking_id?: true
     phone_number?: true
     password_hash?: true
     role?: true
@@ -1842,6 +1847,7 @@ export namespace Prisma {
     id?: true
     name?: true
     email?: true
+    netbanking_id?: true
     phone_number?: true
     password_hash?: true
     role?: true
@@ -1930,6 +1936,7 @@ export namespace Prisma {
     id: string
     name: string
     email: string
+    netbanking_id: string | null
     phone_number: string | null
     password_hash: string
     role: string
@@ -1962,6 +1969,7 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     email?: boolean
+    netbanking_id?: boolean
     phone_number?: boolean
     password_hash?: boolean
     role?: boolean
@@ -1984,6 +1992,7 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     email?: boolean
+    netbanking_id?: boolean
     phone_number?: boolean
     password_hash?: boolean
     role?: boolean
@@ -1999,6 +2008,7 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     email?: boolean
+    netbanking_id?: boolean
     phone_number?: boolean
     password_hash?: boolean
     role?: boolean
@@ -2035,6 +2045,7 @@ export namespace Prisma {
       id: string
       name: string
       email: string
+      netbanking_id: string | null
       phone_number: string | null
       password_hash: string
       role: string
@@ -2446,6 +2457,7 @@ export namespace Prisma {
     readonly id: FieldRef<"User", 'String'>
     readonly name: FieldRef<"User", 'String'>
     readonly email: FieldRef<"User", 'String'>
+    readonly netbanking_id: FieldRef<"User", 'String'>
     readonly phone_number: FieldRef<"User", 'String'>
     readonly password_hash: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'String'>
@@ -12356,6 +12368,7 @@ export namespace Prisma {
     id: 'id',
     name: 'name',
     email: 'email',
+    netbanking_id: 'netbanking_id',
     phone_number: 'phone_number',
     password_hash: 'password_hash',
     role: 'role',
@@ -12643,6 +12656,7 @@ export namespace Prisma {
     id?: UuidFilter<"User"> | string
     name?: StringFilter<"User"> | string
     email?: StringFilter<"User"> | string
+    netbanking_id?: StringNullableFilter<"User"> | string | null
     phone_number?: StringNullableFilter<"User"> | string | null
     password_hash?: StringFilter<"User"> | string
     role?: StringFilter<"User"> | string
@@ -12664,6 +12678,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     email?: SortOrder
+    netbanking_id?: SortOrderInput | SortOrder
     phone_number?: SortOrderInput | SortOrder
     password_hash?: SortOrder
     role?: SortOrder
@@ -12684,6 +12699,7 @@ export namespace Prisma {
   export type UserWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     email?: string
+    netbanking_id?: string
     AND?: UserWhereInput | UserWhereInput[]
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
@@ -12703,12 +12719,13 @@ export namespace Prisma {
     kyc?: XOR<KycDetailsNullableRelationFilter, KycDetailsWhereInput> | null
     kycDocuments?: KycDocumentListRelationFilter
     notificationPrefs?: XOR<NotificationPrefsNullableRelationFilter, NotificationPrefsWhereInput> | null
-  }, "id" | "email">
+  }, "id" | "email" | "netbanking_id">
 
   export type UserOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
     email?: SortOrder
+    netbanking_id?: SortOrderInput | SortOrder
     phone_number?: SortOrderInput | SortOrder
     password_hash?: SortOrder
     role?: SortOrder
@@ -12730,6 +12747,7 @@ export namespace Prisma {
     id?: UuidWithAggregatesFilter<"User"> | string
     name?: StringWithAggregatesFilter<"User"> | string
     email?: StringWithAggregatesFilter<"User"> | string
+    netbanking_id?: StringNullableWithAggregatesFilter<"User"> | string | null
     phone_number?: StringNullableWithAggregatesFilter<"User"> | string | null
     password_hash?: StringWithAggregatesFilter<"User"> | string
     role?: StringWithAggregatesFilter<"User"> | string
@@ -13402,6 +13420,7 @@ export namespace Prisma {
     id?: string
     name: string
     email: string
+    netbanking_id?: string | null
     phone_number?: string | null
     password_hash: string
     role?: string
@@ -13423,6 +13442,7 @@ export namespace Prisma {
     id?: string
     name: string
     email: string
+    netbanking_id?: string | null
     phone_number?: string | null
     password_hash: string
     role?: string
@@ -13444,6 +13464,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    netbanking_id?: NullableStringFieldUpdateOperationsInput | string | null
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -13465,6 +13486,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    netbanking_id?: NullableStringFieldUpdateOperationsInput | string | null
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -13486,6 +13508,7 @@ export namespace Prisma {
     id?: string
     name: string
     email: string
+    netbanking_id?: string | null
     phone_number?: string | null
     password_hash: string
     role?: string
@@ -13501,6 +13524,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    netbanking_id?: NullableStringFieldUpdateOperationsInput | string | null
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -13516,6 +13540,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    netbanking_id?: NullableStringFieldUpdateOperationsInput | string | null
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -14360,6 +14385,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     email?: SortOrder
+    netbanking_id?: SortOrder
     phone_number?: SortOrder
     password_hash?: SortOrder
     role?: SortOrder
@@ -14375,6 +14401,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     email?: SortOrder
+    netbanking_id?: SortOrder
     phone_number?: SortOrder
     password_hash?: SortOrder
     role?: SortOrder
@@ -14390,6 +14417,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     email?: SortOrder
+    netbanking_id?: SortOrder
     phone_number?: SortOrder
     password_hash?: SortOrder
     role?: SortOrder
@@ -15902,6 +15930,7 @@ export namespace Prisma {
     id?: string
     name: string
     email: string
+    netbanking_id?: string | null
     phone_number?: string | null
     password_hash: string
     role?: string
@@ -15922,6 +15951,7 @@ export namespace Prisma {
     id?: string
     name: string
     email: string
+    netbanking_id?: string | null
     phone_number?: string | null
     password_hash: string
     role?: string
@@ -15958,6 +15988,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    netbanking_id?: NullableStringFieldUpdateOperationsInput | string | null
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -15978,6 +16009,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    netbanking_id?: NullableStringFieldUpdateOperationsInput | string | null
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -15998,6 +16030,7 @@ export namespace Prisma {
     id?: string
     name: string
     email: string
+    netbanking_id?: string | null
     phone_number?: string | null
     password_hash: string
     role?: string
@@ -16018,6 +16051,7 @@ export namespace Prisma {
     id?: string
     name: string
     email: string
+    netbanking_id?: string | null
     phone_number?: string | null
     password_hash: string
     role?: string
@@ -16054,6 +16088,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    netbanking_id?: NullableStringFieldUpdateOperationsInput | string | null
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -16074,6 +16109,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    netbanking_id?: NullableStringFieldUpdateOperationsInput | string | null
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -16094,6 +16130,7 @@ export namespace Prisma {
     id?: string
     name: string
     email: string
+    netbanking_id?: string | null
     phone_number?: string | null
     password_hash: string
     role?: string
@@ -16114,6 +16151,7 @@ export namespace Prisma {
     id?: string
     name: string
     email: string
+    netbanking_id?: string | null
     phone_number?: string | null
     password_hash: string
     role?: string
@@ -16150,6 +16188,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    netbanking_id?: NullableStringFieldUpdateOperationsInput | string | null
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -16170,6 +16209,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    netbanking_id?: NullableStringFieldUpdateOperationsInput | string | null
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -16190,6 +16230,7 @@ export namespace Prisma {
     id?: string
     name: string
     email: string
+    netbanking_id?: string | null
     phone_number?: string | null
     password_hash: string
     role?: string
@@ -16210,6 +16251,7 @@ export namespace Prisma {
     id?: string
     name: string
     email: string
+    netbanking_id?: string | null
     phone_number?: string | null
     password_hash: string
     role?: string
@@ -16246,6 +16288,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    netbanking_id?: NullableStringFieldUpdateOperationsInput | string | null
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -16266,6 +16309,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    netbanking_id?: NullableStringFieldUpdateOperationsInput | string | null
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -16286,6 +16330,7 @@ export namespace Prisma {
     id?: string
     name: string
     email: string
+    netbanking_id?: string | null
     phone_number?: string | null
     password_hash: string
     role?: string
@@ -16306,6 +16351,7 @@ export namespace Prisma {
     id?: string
     name: string
     email: string
+    netbanking_id?: string | null
     phone_number?: string | null
     password_hash: string
     role?: string
@@ -16342,6 +16388,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    netbanking_id?: NullableStringFieldUpdateOperationsInput | string | null
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -16362,6 +16409,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    netbanking_id?: NullableStringFieldUpdateOperationsInput | string | null
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -16382,6 +16430,7 @@ export namespace Prisma {
     id?: string
     name: string
     email: string
+    netbanking_id?: string | null
     phone_number?: string | null
     password_hash: string
     role?: string
@@ -16402,6 +16451,7 @@ export namespace Prisma {
     id?: string
     name: string
     email: string
+    netbanking_id?: string | null
     phone_number?: string | null
     password_hash: string
     role?: string
@@ -16438,6 +16488,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    netbanking_id?: NullableStringFieldUpdateOperationsInput | string | null
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -16458,6 +16509,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    netbanking_id?: NullableStringFieldUpdateOperationsInput | string | null
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string

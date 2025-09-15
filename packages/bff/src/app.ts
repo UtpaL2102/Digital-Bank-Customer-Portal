@@ -19,6 +19,8 @@ import notificationsRouter from "./routes/notification.acc.bff.routes.js";
 import beneficiariesBff from "./routes/beneficiaries.bff.routes.js";
 import limitsBff from "./routes/limits.bff.routes.js";
 import loansBff from "./routes/loans.bff.routes.js";
+import adminBffRoutes from "./routes/admin.bff.routes.js";
+import { requireAdminBff } from "./middlewares/admin.auth.middleware.js";
 
 dotenv.config();
 // ✅ emulate __dirname for ESM
@@ -80,6 +82,9 @@ app.use(limitsBff);
 app.use(notificationsRouter);
 
 app.use(loansBff);
+
+app.use(adminBffRoutes);
+
 
 app.use(errorHandler);
 

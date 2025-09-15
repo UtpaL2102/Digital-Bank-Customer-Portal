@@ -19,8 +19,13 @@ return res.status(401).json({ error: { code: "UNAUTHENTICATED", message: "Invali
 }
 
 export function requireKycVerified(req: Request, res: Response, next: NextFunction) {
-const status = (req as any).user?.status as string | undefined;
+const user = (req as any).user || {};
+  // allow admins and kyc_reviewer roles to bypass KYC check
+  if (user.role === "admin" || user.role === "kyc_reviewer") return next();
+
+  const status = user.status as string | undefined;
 if (status === "verified") return next();
+
 return res.status(403).json({
 error: {
 code: "KYC_REQUIRED",
