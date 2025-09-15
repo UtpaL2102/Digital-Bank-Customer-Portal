@@ -14,6 +14,9 @@ import scheduledRouter from "./routes/scheduledTransfers.routes";
 import beneficiariesRoutes from "./routes/beneficiaries.routes";
 import limitsRoutes from "./routes/limits.routes";
 import loansRouter from "./routes/loans.routes";
+import adminRoutes from "./routes/admin.routes.js";
+import requireAdmin from "./middlewares/admin.auth.middleware.js";
+import { requireAuth } from "./middlewares/auth.middleware.js";
 
 dotenv.config({ override: true });
 const app = express();
@@ -41,7 +44,11 @@ app.use("/api/v1/notifications", notificationsRouter);
 
 app.use("/api/v1/loans", loansRouter);
 
-// app.use('/healthz', ...)
+// protected admin routes; requireAdmin applied before admin router
+// app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/admin", requireAuth, requireAdmin, adminRoutes);
+
+
 // Health
 app.get("/healthz", (_req, res) => res.status(200).send("ok"));
 app.get("/readyz", async (_req, res) => {
