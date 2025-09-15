@@ -82,6 +82,20 @@ model Transaction {
   to_account_id     String?  @db.Uuid
   to_beneficiary_id String?  @db.Uuid
   initiated_by      String   @db.Uuid // foreign to auth.users
+  
+  // Scheduled transfer fields
+  next_run_at       DateTime?
+  last_run_at       DateTime?
+  
+  // Monitoring fields
+  started_at        DateTime @default(now())
+  completed_at      DateTime?
+  processing_time   Int?     // in milliseconds
+  error_code        String?
+  error_message     String?
+  retry_count       Int      @default(0)
+  last_retry_at     DateTime?
+  monitoring_status String   @default("normal") // normal, warning, error
 
   fromAccount   Account      @relation("fromTransactions", fields: [from_account_id], references: [id])
   toAccount     Account?     @relation("toTransactions", fields: [to_account_id], references: [id])
@@ -212,11 +226,71 @@ model Notification {
 }
 
 model AuditLog {
-  id           String   @id @default(uuid()) @db.Uuid
-  user_id      String   @db.Uuid
-  action       String
-  details      String?
-  performed_at DateTime @default(now())
+  id              String   @id @default(uuid()) @db.Uuid
+  user_id         String   @db.Uuid
+  action          String
+  action_type     String   // create, update, delete, view, etc.
+  resource_type   String   // account, transaction, beneficiary, etc.
+  resource_id     String?  @db.Uuid
+  details         String?
+  performed_at    DateTime @default(now())
+  ip_address      String?
+  user_agent      String?
+  status          String   @default("success") // success, failure
+  error_details   String?
+  related_user_id String?  @db.Uuid // if action affects another user
+  severity_level  String   @default("info") // info, warning, error, critical
+
+  @@index([user_id, performed_at])
+  @@index([action_type, performed_at])
+  @@index([resource_type, resource_id])
+  @@index([severity_level, performed_at])
+}
+
+model TransferMonitoring {
+  id                        String   @id @default(uuid()) @db.Uuid
+  timestamp                 DateTime @default(now())
+  interval_start           DateTime // start of monitoring interval
+  interval_end             DateTime // end of monitoring interval
+  total_transfers          Int
+  successful_transfers     Int
+  failed_transfers         Int
+  total_amount            Decimal  @db.Decimal(19, 2)
+  avg_processing_time     Int      // in milliseconds
+  max_processing_time     Int      // in milliseconds
+  error_count             Int
+  warning_count           Int
+  most_common_error       String?
+  most_common_error_count Int?
+  system_health_status    String   @default("healthy") // healthy, degraded, critical
+
+  @@index([timestamp])
+  @@index([interval_start, interval_end])
+}
+
+model SystemConfig {
+  id                String   @id @default(uuid()) @db.Uuid
+  key               String   @unique
+  value             String
+  description       String?
+  category          String   // limits, monitoring, security, etc.
+  last_updated_at   DateTime @updatedAt
+  last_updated_by   String   @db.Uuid // foreign to auth.users
+  is_active         Boolean  @default(true)
+
+  // Monitoring thresholds
+  max_retry_attempts        Int     @default(3)
+  processing_time_threshold Int     @default(30000) // in milliseconds
+  error_rate_threshold     Decimal @default(0.05) @db.Decimal(5, 4) // 5%
+  warning_threshold        Decimal @default(0.10) @db.Decimal(5, 4) // 10%
+
+  // Default limits
+  default_daily_limit     Decimal @default(100000) @db.Decimal(19, 2)
+  default_monthly_limit   Decimal @default(1000000) @db.Decimal(19, 2)
+  max_daily_limit        Decimal @default(500000) @db.Decimal(19, 2)
+  max_monthly_limit      Decimal @default(5000000) @db.Decimal(19, 2)
+
+  @@index([category])
 }
 
 model IdempotencyKey {
