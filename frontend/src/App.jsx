@@ -49,7 +49,7 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<RegisterStep1 />} />
         <Route path="/login" element={<Login />} />
         <Route path="/two-factor" element={<TwoFactor />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />

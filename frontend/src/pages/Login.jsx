@@ -1,6 +1,8 @@
 // src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from '../lib/api';
+import { useLocation } from 'react-router-dom';
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -11,32 +13,39 @@ export default function Login() {
   const [role, setRole] = useState("user");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  const location = useLocation();
 
-    setTimeout(() => {
-      setLoading(false);
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-      const cleanedEmail = (email || "").trim();
-      const cleanedPassword = (password || "").trim();
+  try {
+    const identifier = (email || "").trim();
+    const passwordValue = (password || "").trim();
 
-      if (cleanedEmail === "user@gmail.com" && cleanedPassword === "123456") {
-        sessionStorage.setItem("isAuthenticated", "true");
-        sessionStorage.setItem("role", role);
+    const resp = await api.auth.login({ identifier, password: passwordValue });
 
-        if (role === "user") {
-          navigate("/dashboard", { replace: true });
-        } else {
-          navigate("/admin", { replace: true });
-        }
-        return;
-      }
+    if (resp.requires2fa) {
+      // go to TwoFactor page and pass temp_login_token (if provided) and identifier/password fallback
+      navigate('/two-factor', { state: { tempLoginToken: resp.temp_login_token, identifier, password: passwordValue }});
+      return;
+    }
 
-      setError("Invalid email or password. Please try again.");
-    }, 1200);
-  };
+    // Normal login success - store tokens and redirect
+    if (resp.access_token) {
+      sessionStorage.setItem("access_token", resp.access_token);
+      sessionStorage.setItem("refresh_token", resp.refresh_token);
+      navigate("/dashboard", { replace: true });
+    }
+  } catch (err) {
+    // err might be an Error or an object from handleResponse; adapt to your client shape
+    console.error('Login failed', err);
+    setError(err?.error?.message || err.message || 'Login failed. Try again.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div

@@ -1,14 +1,31 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../lib/api";
 
 export default function TwoFactorSetup() {
   const [method, setMethod] = useState("email");
   const navigate = useNavigate();
 
-  const handleSendOtp = () => {
-    console.log(`Send OTP to ${method}`);
-    navigate("/two-factor"); // Redirect to OTP verification page
-  };
+  const handleSendOtp = async () => {
+  try {
+    // get access token from your auth storage/context
+    const token = sessionStorage.getItem("access_token"); // adapt to your real method
+    // If you support different delivery methods you can pass { delivery: method }
+    const resp = await api.auth.enable2fa(token); // should return { otpauth_url, temp_secret_id }
+    if (resp?.temp_secret_id) {
+      // navigate to the shared TwoFactor page and pass data for setup flow
+      navigate("/two-factor", {
+        state: { tempSecretId: resp.temp_secret_id, otpauth_url: resp.otpauth_url },
+      });
+    } else {
+      // fallback: if API just sent an OTP to email/phone
+      navigate("/two-factor", { state: { notice: "OTP sent to your email/phone" } });
+    }
+  } catch (err) {
+    console.error("enable2fa failed", err);
+    // show UI error to user
+  }
+};
 
   return (
     <div className="bg-slate-50 font-sans min-h-screen flex flex-col">

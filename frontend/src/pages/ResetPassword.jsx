@@ -1,5 +1,7 @@
 import React, { useState, useRef } from "react";
 import "../ResetPassword.css";
+import api from '../lib/api';
+import { useLocation } from 'react-router-dom';
 
 export default function ResetPassword() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
@@ -7,6 +9,9 @@ export default function ResetPassword() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showToast, setShowToast] = useState(false);
   const inputsRef = useRef([]);
+
+  const params = new URLSearchParams(useLocation().search);
+  const token = params.get('token');
 
   const handleCodeChange = (e, index) => {
     const value = e.target.value.replace(/[^0-9]/g, "");
@@ -27,10 +32,44 @@ export default function ResetPassword() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
+    setError("");
+    setLoading(true);
+
+    // Validate passwords match
+    if (newPassword !== confirmPassword) {
+      setError("Passwords don't match");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Use token from URL or code from form
+      const resetData = {
+        new_password: newPassword
+      };
+
+      if (token) {
+        resetData.token = token;
+      } else {
+        resetData.code = code.join("");
+      }
+
+      await api.auth.verifyPasswordReset(resetData);
+      setShowToast(true);
+      setTimeout(() => {
+        navigate("/login", { replace: true });
+      }, 2000);
+    } catch (err) {
+      console.error('Password reset failed:', err);
+      setError(err?.message || 'Failed to reset password. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
