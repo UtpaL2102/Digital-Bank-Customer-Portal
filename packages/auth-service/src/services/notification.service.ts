@@ -1,4 +1,4 @@
-import { prisma } from "../db/prismaClient";
+import { prisma } from "../db/prismaClient.js";
 
 export async function createNotification(userId: string, type: string, title: string, message: string, data?: any) {
   return prisma.notification.create({

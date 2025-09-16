@@ -1,7 +1,9 @@
 import { z, ZodSchema } from 'zod';
 
+import type { Request, Response, NextFunction } from 'express';
+
 export function zodValidate(schema: ZodSchema) {
-  return (req, res, next) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     try {
       req.body = schema.parse(req.body);
       next();
