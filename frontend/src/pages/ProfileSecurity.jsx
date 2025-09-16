@@ -3,8 +3,107 @@ import { useNavigate } from "react-router-dom";
 import "../ProfileSecurity.css"; // make sure this path matches your project
 
 export default function ProfileSecurity() {
-  const [twoFAEnabled, setTwoFAEnabled] = useState(true);
+  const [twoFAEnabled, setTwoFAEnabled] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
+  
+  // If user has 2FA backup codes from setup
+  const location = useLocation();
+  const backupCodes = location.state?.backup_codes;
+
+  // Handle enabling/disabling 2FA
+  const handleToggle2FA = async (e) => {
+    setError("");
+    const enabled = e.target.checked;
+    
+    if (enabled) {
+      try {
+        const token = sessionStorage.getItem("access_token");
+        const resp = await api.auth.enable2fa({}, token);
+        if (resp.temp_secret_id) {
+          navigate('/two-factor', { 
+            state: { 
+              tempSecretId: resp.temp_secret_id,
+              otpauth_url: resp.otpauth_url
+            }
+          });
+        }
+      } catch (err) {
+        console.error('2FA enable failed:', err);
+        setError(err?.message || 'Failed to enable 2FA');
+        e.target.checked = false; // Revert toggle
+      }
+    } else {
+      // Handle disable flow (requires current password + 2FA code)
+      const password = prompt("Enter your password to disable 2FA:");
+      if (!password) {
+        e.target.checked = true; // Keep enabled if cancelled
+        return;
+      }
+      const code = prompt("Enter your 2FA code to confirm:");
+      if (!code) {
+        e.target.checked = true;
+        return;
+      }
+
+      try {
+        const token = sessionStorage.getItem("access_token");
+        await api.auth.disable2fa({ password, code }, token);
+        setTwoFAEnabled(false);
+        setSuccessMessage("2FA has been disabled");
+      } catch (err) {
+        console.error('2FA disable failed:', err);
+        setError(err?.message || 'Failed to disable 2FA');
+        e.target.checked = true; // Keep enabled
+      }
+    }
+  };
+
+  // Handle password change
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    const currentPassword = document.getElementById('current_password').value;
+    const newPassword = document.getElementById('new_password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+
+    if (newPassword !== confirmPassword) {
+      setError("New passwords don't match");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const token = sessionStorage.getItem("access_token");
+      const payload = { current_password: currentPassword, new_password: newPassword };
+      
+      if (twoFAEnabled) {
+        const code = prompt("Enter your 2FA code to confirm password change:");
+        if (!code) {
+          setLoading(false);
+          return;
+        }
+        payload.code = code;
+      }
+
+      await api.auth.changePassword(payload, token);
+      setSuccessMessage("Password changed successfully");
+      
+      // Clear password fields
+      document.getElementById('current_password').value = '';
+      document.getElementById('new_password').value = '';
+      document.getElementById('confirm_password').value = '';
+    } catch (err) {
+      console.error('Password change failed:', err);
+      setError(err?.message || 'Failed to change password');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#F5F7FA]">

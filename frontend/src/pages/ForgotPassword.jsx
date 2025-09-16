@@ -1,30 +1,22 @@
 import React, { useState } from "react";
 import "../forgotPassword.css";
+import api from '../lib/api';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!email) {
-      setError("Please enter your email address.");
-      return;
-    }
-
-    // Simple email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError("Enter a valid email address.");
-      return;
-    }
-
-    setError("");
-    setSuccess(true);
-    setTimeout(() => setSuccess(false), 3000); // Hide toast after 3s
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
+  try {
+    await api.auth.requestPasswordReset({ email });
+    setSuccess(true); // show toast
+  } catch (err) {
+    setError(err?.error?.message || 'Unable to send reset link');
+  }
+};
 
   return (
     <div className="bg-[#F5F7FA] min-h-screen flex flex-col">

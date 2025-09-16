@@ -1,13 +1,45 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../register.css";
+import api from '../lib/api';
 
 export default function Register() {
   const navigate = useNavigate();
 
-  const handleCreateAccount = (e) => {
-    e.preventDefault(); 
-    navigate("/verify-account"); // Redirect directly to dashboard
+ const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  
+  const handleCreateAccount = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+
+    if (password !== confirmPassword) {
+      setError("Passwords don't match");
+      setLoading(false);
+      return;
+    }
+
+    const payload = {
+      name: document.getElementById('fullname').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      phone_number: document.getElementById('phone').value.trim(),
+      password: password
+    };
+
+    try {
+      const resp = await api.auth.register(payload);
+      // Got netbanking_id, move to step 2
+      navigate('/register-step2', { state: { netbanking_id: resp.netbanking_id }});
+    } catch (err) {
+      console.error('Register failed:', err);
+      setError(err?.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -58,6 +90,11 @@ export default function Register() {
                   Sign in
                 </Link>
               </p>
+              {error && (
+                <div className="mt-4 bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
             </div>
 
             {/* Steps */}
@@ -172,9 +209,14 @@ export default function Register() {
               <div>
                 <button
                   type="submit"
-                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm md:text-base font-bold text-white bg-gradient-to-r from-[var(--navy-blue)] to-[var(--bright-blue)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--bright-blue)] transition-all duration-300 button-glow"
+                  disabled={loading}
+                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm md:text-base font-bold text-white bg-gradient-to-r from-[var(--navy-blue)] to-[var(--bright-blue)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--bright-blue)] transition-all duration-300 button-glow disabled:opacity-50"
                 >
-                  Create Account
+                  {loading ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    "Create Account"
+                  )}
                 </button>
               </div>
             </form>
