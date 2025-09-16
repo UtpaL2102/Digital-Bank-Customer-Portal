@@ -9,7 +9,23 @@ password: z.string().min(8)
 export type RegisterInput = z.infer<typeof RegisterSchema>;
 
 export const LoginSchema = z.object({
-email: z.string().email(),
+identifier: z.string().min(3), // email or netbanking_id
 password: z.string().min(8)
 });
 export type LoginInput = z.infer<typeof LoginSchema>;
+
+export const EnableMfaSchema = z.object({}); // no body
+export const VerifyMfaSchema = z.object({
+  temp_secret_id: z.string().optional(),
+  code: z.string().min(4)
+});
+export const DisableMfaSchema = z.object({
+  password: z.string(),
+  code: z.string().min(4)
+});
+export const LoginVerifySchema = z.object({
+  temp_login_token: z.string().optional(),
+  identifier: z.string().optional(),
+  password: z.string().optional(),
+  code: z.string().min(4)
+});
