@@ -1,6 +1,7 @@
 // packages/account-service/src/routes/admin.routes.ts
 import { Router } from "express";
 import * as adminCtrl from "../controllers/admin.controller.js";
+import * as auditCtrl from "../controllers/audit.controller.js";
 import { requireAuth } from "../middlewares/auth.middleware.js";
 import requireAdmin from "../middlewares/admin.auth.middleware.js";
 
@@ -10,7 +11,7 @@ const router = Router();
 // so define routes **relative** to that base path.
 
 router.use(requireAuth);        // ensure user is set
-// router.use(requireAdmin);       // ensure admin role
+router.use(requireAdmin);       // ensure admin role
 
 // Limit requests
 router.get("/limit-requests", adminCtrl.listLimitRequests);
@@ -31,5 +32,6 @@ router.delete("/branches/:branchId", adminCtrl.deleteBranch);
 
 // Audit logs
 router.get("/audit-logs", adminCtrl.listAuditLogs);
+router.post("/audit-events", auditCtrl.createAuditEvent); // Internal endpoint for services
 
 export default router;

@@ -1,5 +1,5 @@
-// Base URL for BFF API
-const BASE_URL = '';
+// When using Vite's proxy, we don't need the full URL
+const BASE_URL = '';  // Using relative URLs with proxy
 
 // Helper to handle API responses
 const handleResponse = async (response) => {
@@ -178,6 +178,15 @@ export const kyc = {
       .then(handleResponse),
 
   // Admin KYC functions
+  listAllKyc: (params, token) => {
+    let url = `${BASE_URL}/api/v1/admin/kyc`;
+    if (params) {
+      url += `?${new URLSearchParams(params).toString()}`;
+    }
+    return fetch(url, createRequestOptions('GET', null, token))
+      .then(handleResponse);
+  },
+
   listPendingKyc: (token) =>
     fetch(`${BASE_URL}/api/v1/admin/kyc/pending`, createRequestOptions('GET', null, token))
       .then(handleResponse),
@@ -244,6 +253,80 @@ export const notifications = {
       .then(handleResponse),
 };
 
+// Admin API functions
+export const admin = {
+  // Employee management
+  employees: {
+    list: (token) => 
+      fetch(`${BASE_URL}/api/v1/admin/employees`, createRequestOptions('GET', null, token))
+        .then(handleResponse),
+    
+    create: (data, token) =>
+      fetch(`${BASE_URL}/api/v1/admin/employees`, createRequestOptions('POST', data, token))
+        .then(handleResponse),
+
+    update: (id, data, token) =>
+      fetch(`${BASE_URL}/api/v1/admin/employees/${id}`, createRequestOptions('PUT', data, token))
+        .then(handleResponse),
+
+    remove: (id, token) =>
+      fetch(`${BASE_URL}/api/v1/admin/employees/${id}`, createRequestOptions('DELETE', null, token))
+        .then(handleResponse),
+  },
+
+  // Branch management
+  branches: {
+    list: (token) =>
+      fetch(`${BASE_URL}/api/v1/admin/branches`, createRequestOptions('GET', null, token))
+        .then(handleResponse),
+    
+    create: (data, token) =>
+      fetch(`${BASE_URL}/api/v1/admin/branches`, createRequestOptions('POST', data, token))
+        .then(handleResponse),
+
+    update: (id, data, token) =>
+      fetch(`${BASE_URL}/api/v1/admin/branches/${id}`, createRequestOptions('PUT', data, token))
+        .then(handleResponse),
+    
+    remove: (id, token) =>
+      fetch(`${BASE_URL}/api/v1/admin/branches/${id}`, createRequestOptions('DELETE', null, token))
+        .then(handleResponse),
+  },
+
+  // Audit logs
+  audit: {
+    list: async (params, token) => {
+      try {
+        let url = `${BASE_URL}/api/v1/admin/audit-logs`;
+        if (params && Object.keys(params).length > 0) {
+          const searchParams = new URLSearchParams();
+          Object.entries(params).forEach(([key, value]) => {
+            if (value) searchParams.append(key, value);
+          });
+          url += `?${searchParams.toString()}`;
+        }
+        
+        console.log('Fetching audit logs from:', url);
+        const response = await fetch(url, createRequestOptions('GET', null, token));
+        console.log('Audit logs response status:', response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Audit logs error:', errorText);
+          throw new Error(errorText || `HTTP ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Audit logs data:', data);
+        return data;
+      } catch (err) {
+        console.error('Audit logs fetch error:', err);
+        throw err;
+      }
+    }
+  }
+};
+
 // Export all API functions
 export const api = {
   auth,
@@ -253,4 +336,5 @@ export const api = {
   loans,
   beneficiaries,
   notifications,
+  admin,
 };

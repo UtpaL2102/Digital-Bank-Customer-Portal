@@ -16,15 +16,25 @@ export default function AdminKycList() {
       return;
     }
 
-    loadPendingKyc(token);
+    loadAllKyc(token);
   }, [navigate]);
 
-  const loadPendingKyc = async (token) => {
+  const loadAllKyc = async (token) => {
     try {
-      const response = await api.kyc.listPendingKyc(token);
-      setPendingKyc(response.requests || []);
+      setLoading(true);
+      setError('');
+      const response = await api.kyc.listAllKyc({}, token);
+      if (response && Array.isArray(response.items)) {
+        setPendingKyc(response.items);
+      } else if (response && Array.isArray(response)) {
+        setPendingKyc(response);
+      } else {
+        setPendingKyc([]);
+        console.warn('Unexpected KYC response format:', response);
+      }
     } catch (err) {
-      setError("Failed to load pending KYC requests. Please try again later.");
+      console.error('Failed to load KYC:', err);
+      setError("Failed to load KYC requests. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -107,27 +117,29 @@ export default function AdminKycList() {
                   </tr>
                 ) : (
                   pendingKyc.map((request) => (
-                    <tr key={request.userId}>
+                    <tr key={request.user_id}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                        {request.userId}
+                        <div>{request.user?.email || request.user_id}</div>
+                        <div className="text-xs text-gray-500">{request.user?.name}</div>
                       </td>
                       <td className="whitespace-nowrap px-3 py-4 text-sm">
-                        <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${getStatusBadgeColor(request.status)}`}>
+                        <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${getStatusBadgeColor(request.status.toUpperCase())}`}>
                           {request.status}
                         </span>
                       </td>
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        {new Date(request.submissionDate).toLocaleString()}
+                        {new Date(request.created_at).toLocaleString()}
                       </td>
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        {request.documents?.length || 0} uploaded
+                        <div>Type: {request.document_type}</div>
+                        <div className="text-xs">ID: {request.document_number}</div>
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                         <button
-                          onClick={() => handleViewDetails(request.userId)}
+                          onClick={() => handleViewDetails(request.user_id)}
                           className="text-blue-600 hover:text-blue-900"
                         >
-                          Review<span className="sr-only">, {request.userId}</span>
+                          Review<span className="sr-only">, {request.user_id}</span>
                         </button>
                       </td>
                     </tr>

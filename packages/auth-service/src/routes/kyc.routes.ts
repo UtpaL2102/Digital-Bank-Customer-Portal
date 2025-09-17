@@ -33,6 +33,7 @@ kycRouter.post("/kyc/submit", ctrl.submit);
 kycRouter.get("/kyc/status", ctrl.status);
 
 // Admin/reviewer
+kycRouter.get("/admin/kyc", requireRole("admin","kyc_reviewer"), ctrl.listAll);
 kycRouter.get("/admin/kyc/pending", requireRole("admin","kyc_reviewer"), ctrl.listPending);
 kycRouter.get("/admin/kyc/:userId", requireRole("admin","kyc_reviewer"), ctrl.getCase);
 kycRouter.post("/admin/kyc/:userId/approve", requireRole("admin","kyc_reviewer"), ctrl.approve);

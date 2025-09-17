@@ -13,9 +13,10 @@ configureCloudinary();
 
 const MAX_SUBMITS_PER_DAY = Number(process.env.KYC_MAX_SUBMITS_PER_DAY || 3);
 
-// Write a local audit log
+import { sendAuditEvent } from './audit.service';
+
 async function audit(userId: string, action: string, details?: string) {
-  await prisma.auditLog.create({ data: { user_id: userId, action, details } });
+  await sendAuditEvent(userId, action, details);
 }
 
 export async function uploadDocument(userId: string, docKind: string, file: Express.Multer.File) {
@@ -137,6 +138,42 @@ export async function listPending(limit = 50) {
     }
   });
   return items;
+}
+
+export async function listAll(page = 1, pageSize = 50) {
+  const skip = (page - 1) * pageSize;
+  const [total, items] = await prisma.$transaction([
+    prisma.kycDetails.count(),
+    prisma.kycDetails.findMany({
+      orderBy: { created_at: "desc" },
+      take: pageSize,
+      skip,
+      select: {
+        user_id: true,
+        status: true,
+        document_type: true,
+        document_number: true,
+        created_at: true,
+        failure_reason: true,
+        verification_score: true,
+        user: {
+          select: {
+            email: true,
+            name: true
+          }
+        }
+      }
+    })
+  ]);
+  return {
+    items,
+    meta: {
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize)
+    }
+  };
 }
 
 export async function getCase(userId: string) {

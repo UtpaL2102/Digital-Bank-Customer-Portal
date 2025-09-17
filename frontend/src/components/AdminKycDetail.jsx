@@ -125,7 +125,7 @@ export default function AdminKycDetail() {
                   className="border rounded-lg p-4 bg-gray-50"
                 >
                   <h5 className="font-medium text-gray-900 mb-2">
-                    {doc.type.replace("_", " ").toUpperCase()}
+                    {(doc.type || '').replace("_", " ").toUpperCase() || 'DOCUMENT'}
                   </h5>
                   {doc.url ? (
                     <div className="aspect-w-3 aspect-h-2">
