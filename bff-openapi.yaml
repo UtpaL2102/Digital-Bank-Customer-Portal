@@ -328,6 +328,46 @@ application/json:
 schema: { type: object, properties: { reason: { type: string } } }
 responses:
 "200": { description: OK }
+
+/admin/kyc:
+get:
+summary: List all KYC submissions
+parameters:
+- $ref: "#/components/parameters/Page"
+- $ref: "#/components/parameters/PageSize"
+responses:
+"200":
+description: OK
+content:
+application/json:
+schema:
+type: object
+properties:
+items:
+type: array
+items:
+type: object
+properties:
+user_id: { type: string, format: uuid }
+status: { type: string }
+document_type: { type: string }
+document_number: { type: string }
+created_at: { type: string, format: date-time }
+failure_reason: { type: string, nullable: true }
+verification_score: { type: number, nullable: true }
+user:
+type: object
+properties:
+email: { type: string }
+name: { type: string }
+meta:
+type: object
+properties:
+total: { type: integer }
+page: { type: integer }
+pageSize: { type: integer }
+totalPages: { type: integer }
+
 /accounts:
 get:
 summary: List accounts

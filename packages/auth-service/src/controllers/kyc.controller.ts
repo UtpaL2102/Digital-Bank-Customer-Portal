@@ -57,9 +57,26 @@ res.json(s);
 
 // Admin/Reviewer
 export async function listPending(req: Request, res: Response) {
-const limit = Number(req.query.limit || 50);
-const items = await svc.listPending(limit);
-res.json({ items, total: items.length });
+  const limit = Number(req.query.limit || 50);
+  const items = await svc.listPending(limit);
+  res.json({ items, total: items.length });
+}
+
+export async function listAll(req: Request, res: Response) {
+  try {
+    const page = Number(req.query.page || 1);
+    const pageSize = Number(req.query.pageSize || 50);
+    const result = await svc.listAll(page, pageSize);
+    res.json(result);
+  } catch (err: any) {
+    console.error('listAll error:', err);
+    res.status(500).json({ 
+      error: { 
+        code: "INTERNAL_ERROR", 
+        message: "Failed to list KYC submissions" 
+      } 
+    });
+  }
 }
 
 export async function getCase(req: Request, res: Response) {

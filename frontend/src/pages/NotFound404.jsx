@@ -2,6 +2,22 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 export default function NotFound404() {
+  // Get user from session storage
+  const user = (() => {
+    try {
+      const stored = sessionStorage.getItem('user');
+      return stored ? JSON.parse(stored) : null;
+    } catch (e) {
+      console.warn('Failed to parse user from session storage', e);
+      return null;
+    }
+  })();
+
+  // Determine dashboard path based on role
+  const dashboardPath = user?.role === 'admin' ? '/admin' 
+    : user?.status === 'verified' ? '/dashboard' 
+    : '/minimal-dashboard';
+
   return (
     <div className="bg-[#F5F7FA] min-h-screen flex items-center justify-center font-['Inter']">
       <div className="bg-white p-12 rounded-xl shadow-lg text-center max-w-sm w-full">
@@ -20,7 +36,7 @@ export default function NotFound404() {
 
         {/* Back to Dashboard Button */}
         <Link
-          to="/dashboard"
+          to={dashboardPath}
           className="bg-gradient-to-r from-[#001BB7] to-[#0046FF] text-white font-bold py-3 px-8 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 inline-block"
         >
           Back to Dashboard

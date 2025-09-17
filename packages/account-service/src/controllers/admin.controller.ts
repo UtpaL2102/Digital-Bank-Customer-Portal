@@ -308,7 +308,7 @@ export const deleteBranch = async (req: Request, res: Response) => {
 };
 
 /**
- * Audit logs listing - GET /api/v1/admin/audit-logs?page=1
+ * Audit logs listing - GET /api/v1/admin/audit-logs?page=1&service=auth-service&action=KYC_SUBMITTED
  */
 export const listAuditLogs = async (req: Request, res: Response) => {
   try {
@@ -316,9 +316,40 @@ export const listAuditLogs = async (req: Request, res: Response) => {
     const pageSize = Math.min(200, Math.max(1, parseInt((req.query.pageSize as string) || "50", 10)));
     const skip = (page - 1) * pageSize;
 
+    // Build where clause for filtering
+    const where: any = {};
+    
+    // Filter by service
+    if (req.query.service) {
+      where.action = { startsWith: `${req.query.service}:` };
+    }
+
+    // Filter by specific action
+    if (req.query.action) {
+      where.action = req.query.service 
+        ? { equals: `${req.query.service}:${req.query.action}` }
+        : { equals: req.query.action };
+    }
+
+    // Filter by date range
+    if (req.query.from) {
+      where.performed_at = { ...where.performed_at, gte: new Date(req.query.from as string) };
+    }
+    if (req.query.to) {
+      where.performed_at = { ...where.performed_at, lte: new Date(req.query.to as string) };
+    }
+
+    // Filter by user
+    if (req.query.userId) {
+      where.user_id = req.query.userId;
+    }
+
+    console.log('Fetching audit logs with filters:', where);
+
     const [total, items] = await Promise.all([
-      prisma.auditLog.count(),
+      prisma.auditLog.count({ where }),
       prisma.auditLog.findMany({
+        where,
         skip,
         take: pageSize,
         orderBy: { performed_at: "desc" },
@@ -326,7 +357,19 @@ export const listAuditLogs = async (req: Request, res: Response) => {
     ]);
 
     return res.json({
-      meta: { total, page, pageSize, totalPages: Math.ceil(total / pageSize) },
+      meta: { 
+        total, 
+        page, 
+        pageSize, 
+        totalPages: Math.ceil(total / pageSize),
+        filters: {
+          service: req.query.service || null,
+          action: req.query.action || null,
+          from: req.query.from || null,
+          to: req.query.to || null,
+          userId: req.query.userId || null
+        }
+      },
       audit_logs: items,
     });
   } catch (err) {

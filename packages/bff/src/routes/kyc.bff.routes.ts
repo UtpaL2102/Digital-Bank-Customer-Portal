@@ -73,8 +73,9 @@ router.get("/api/v1/kyc/status", async (req, res, next) => {
 
 // Admin
 // Keep admin GETs proxied (safe)
-router.get("/api/v1/admin/kyc/pending", kycProxy);
-router.get("/api/v1/admin/kyc/:userId", kycProxy);
+router.get("/api/v1/admin/kyc", kycProxy);  // List all KYC submissions
+router.get("/api/v1/admin/kyc/pending", kycProxy);  // List only pending
+router.get("/api/v1/admin/kyc/:userId", kycProxy);  // Get specific user's KYC
 
 // Admin approve/reject POSTs with JSON-forwarding handlers
 
