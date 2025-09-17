@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import "../ResetPassword.css";
-import api from '../lib/api';
+import {api} from '../lib/api';
 import { useLocation } from 'react-router-dom';
 
 export default function ResetPassword() {

@@ -1,5 +1,5 @@
 // Base URL for BFF API
-const BASE_URL = import.meta.env.VITE_BFF_URL || 'http://localhost:4000';
+const BASE_URL = '';
 
 // Helper to handle API responses
 const handleResponse = async (response) => {
@@ -12,17 +12,20 @@ const handleResponse = async (response) => {
 
 // Helper to create request options with authorization
 const createRequestOptions = (method, body, token) => {
-  const headers = {
-    'Content-Type': 'application/json',
-  };
+  const headers = {};
   
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
+  // Always set Content-Type for non-FormData requests
+  if (!(body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
+
   const options = { method, headers };
-  if (body) {
-    options.body = JSON.stringify(body);
+  if (body && method !== 'GET') {
+    options.body = body instanceof FormData ? body : JSON.stringify(body);
   }
   
   return options;
@@ -32,6 +35,10 @@ const createRequestOptions = (method, body, token) => {
 export const auth = {
   login: (credentials) =>
     fetch(`${BASE_URL}/api/v1/auth/login`, createRequestOptions('POST', credentials))
+      .then(handleResponse),
+
+  adminLogin: (credentials) =>
+    fetch(`${BASE_URL}/api/v1/admin/login`, createRequestOptions('POST', credentials))
       .then(handleResponse),
 
   register: (userData) =>
@@ -63,6 +70,10 @@ verify2fa: (data, token) => fetch(`${BASE_URL}/api/v1/auth/2fa/verify`, createRe
     
   loginVerify2fa: (verificationData) =>
     fetch(`${BASE_URL}/api/v1/auth/2fa/login-verify`, createRequestOptions('POST', verificationData))
+      .then(handleResponse),
+      
+  me: (token) =>
+    fetch(`${BASE_URL}/api/v1/me`, createRequestOptions('GET', null, token))
       .then(handleResponse),
 };
 
@@ -134,15 +145,28 @@ export const transfers = {
 
 // KYC API functions
 export const kyc = {
-  uploadDocuments: (formData, token) => {
-    const options = {
+  uploadDocument: async (formData, token) => {
+    const headers = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const resp = await fetch(`${BASE_URL || ''}/api/v1/kyc/documents`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      body: formData, // Don't JSON.stringify FormData
-    };
-    return fetch(`${BASE_URL}/api/v1/kyc/documents`, options).then(handleResponse);
+      headers,               // note: no Content-Type here
+      body: formData,
+    });
+
+    // improved error body handling (so frontend can show server error)
+    if (!resp.ok) {
+      let text;
+      try {
+        text = await resp.text();
+        let json = JSON.parse(text);
+        throw new Error(json?.error?.message || text || `HTTP ${resp.status}`);
+      } catch (e) {
+        // parsing failed -> throw raw text or status
+        throw new Error(text || `HTTP ${resp.status}`);
+      }
+    }
+    return resp.json();
   },
 
   submitKyc: (kycData, token) =>
@@ -162,12 +186,12 @@ export const kyc = {
     fetch(`${BASE_URL}/api/v1/admin/kyc/${userId}`, createRequestOptions('GET', null, token))
       .then(handleResponse),
 
-  approveKyc: (userId, approvalData, token) =>
-    fetch(`${BASE_URL}/api/v1/admin/kyc/${userId}/approve`, createRequestOptions('POST', approvalData, token))
+  approveKyc: (userId, data, token) =>
+    fetch(`${BASE_URL}/api/v1/admin/kyc/${userId}/approve`, createRequestOptions('POST', data, token))
       .then(handleResponse),
 
-  rejectKyc: (userId, rejectionData, token) =>
-    fetch(`${BASE_URL}/api/v1/admin/kyc/${userId}/reject`, createRequestOptions('POST', rejectionData, token))
+  rejectKyc: (userId, data, token) =>
+    fetch(`${BASE_URL}/api/v1/admin/kyc/${userId}/reject`, createRequestOptions('POST', data, token))
       .then(handleResponse),
 };
 
@@ -221,7 +245,7 @@ export const notifications = {
 };
 
 // Export all API functions
-export default {
+export const api = {
   auth,
   accounts,
   transfers,

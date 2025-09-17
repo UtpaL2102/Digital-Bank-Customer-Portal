@@ -3,14 +3,26 @@ import * as svc from "../services/kyc.service";
 import { KycDocUploadSchema, KycSubmitSchema, AdminApproveSchema, AdminRejectSchema } from "../schemas/kyc.schemas";
 
 export async function uploadDocument(req: Request, res: Response) {
-const userId = (req as any).user.id as string;
-const { doc_kind } = KycDocUploadSchema.parse(req.body);
-const file = (req as any).file;
-if (!file) return res.status(400).json({ error: { code: "NO_FILE", message: "File is required" } });
-
-const doc = await svc.uploadDocument(userId, doc_kind, file);
-res.status(201).json({ id: doc.id, public_id: doc.public_id });
+  try {
+    const userId = (req as any).user?.id as string;
+    console.log('uploadDocument called, userId=', userId, 'body=', req.body);
+    const { doc_kind } = KycDocUploadSchema.parse(req.body);
+    const file = (req as any).file;
+    if (!file) {
+      console.error('No file in request', req.body);
+      return res.status(400).json({ error: { code: "NO_FILE", message: "File is required" } });
+    }
+    const doc = await svc.uploadDocument(userId, doc_kind, file);
+    res.status(201).json({ id: doc.id, public_id: doc.public_id });
+  } catch (err: any) {
+    console.error('uploadDocument error:', err);
+    if (err?.name === 'ZodError') {
+      return res.status(400).json({ error: { code: 'INVALID_PAYLOAD', message: err.message }});
+    }
+    res.status(500).json({ error: { code: err.code || 'INTERNAL_ERROR', message: err.message || 'Unexpected' }});
+  }
 }
+
 
 export async function submit(req: Request, res: Response) {
   try {

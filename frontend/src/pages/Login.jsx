@@ -1,7 +1,7 @@
 // src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from '../lib/api';
+import {api} from '../lib/api';
 import { useLocation } from 'react-router-dom';
 
 export default function Login() {
@@ -24,7 +24,16 @@ export default function Login() {
     const identifier = (email || "").trim();
     const passwordValue = (password || "").trim();
 
-    const resp = await api.auth.login({ identifier, password: passwordValue });
+    if (!identifier || !passwordValue) {
+      setError("Please enter both email and password");
+      setLoading(false);
+      return;
+    }
+
+    // Use appropriate login endpoint based on role
+    const resp = role === 'admin' 
+      ? await api.auth.adminLogin({ email: identifier, password: passwordValue })
+      : await api.auth.login({ identifier, password: passwordValue });
 
     if (resp.requires2fa) {
       // go to TwoFactor page and pass temp_login_token (if provided) and identifier/password fallback
@@ -36,12 +45,25 @@ export default function Login() {
     if (resp.access_token) {
       sessionStorage.setItem("access_token", resp.access_token);
       sessionStorage.setItem("refresh_token", resp.refresh_token);
-      navigate("/dashboard", { replace: true });
+      // Store user data to avoid an immediate /me call
+      sessionStorage.setItem("user", JSON.stringify(resp.user));
+      
+      // Redirect based on role and status
+      if (resp.user?.role === 'admin') {
+        navigate("/admin", { replace: true });
+      } else if (resp.user?.status === 'verified') {
+        navigate("/dashboard", { replace: true });
+      } else {
+        navigate("/minimal-dashboard", { replace: true });
+      }
     }
   } catch (err) {
-    // err might be an Error or an object from handleResponse; adapt to your client shape
     console.error('Login failed', err);
-    setError(err?.error?.message || err.message || 'Login failed. Try again.');
+    if (err instanceof TypeError && err.message === 'Failed to fetch') {
+      setError('Unable to connect to the server. Please ensure the backend service is running.');
+    } else {
+      setError(err?.error?.message || err.message || 'Login failed. Try again.');
+    }
   } finally {
     setLoading(false);
   }

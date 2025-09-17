@@ -33,7 +33,12 @@ return res.status(400).json({ error: { code: "INVALID_DOC_KIND", message: "doc_k
 }
 return res.status(500).json({ error: { code: "INTERNAL_ERROR", message: "Unexpected error" } });
 });
-// app.use('/notification-prefs', ...)
+// Generic error mapper
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error("Unhandled error:", err);
+  if (res.headersSent) return next(err);
+  res.status(err.status || 500).json({ error: { code: err.code || "INTERNAL_ERROR", message: err.message || "Unexpected error" }});
+});
 
 app.get("/healthz", (_req, res) => res.status(200).send("ok"));
 app.get("/readyz", async (_req, res) => {
