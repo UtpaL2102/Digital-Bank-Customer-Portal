@@ -24,7 +24,7 @@ const user = (req as any).user || {};
   if (user.role === "admin" || user.role === "kyc_reviewer") return next();
 
   const status = user.status as string | undefined;
-if (status === "verified") return next();
+if (status === "verified" ||status==="active") return next();
 
 return res.status(403).json({
 error: {

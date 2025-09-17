@@ -1,8 +1,8 @@
 // src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {api} from '../lib/api';
-import { useLocation } from 'react-router-dom';
+import { api } from "../lib/api";
+import { useLocation } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -16,58 +16,70 @@ export default function Login() {
   const location = useLocation();
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-  setLoading(true);
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-  try {
-    const identifier = (email || "").trim();
-    const passwordValue = (password || "").trim();
+    try {
+      const identifier = (email || "").trim();
+      const passwordValue = (password || "").trim();
 
-    if (!identifier || !passwordValue) {
-      setError("Please enter both email and password");
-      setLoading(false);
-      return;
-    }
-
-    // Use appropriate login endpoint based on role
-    const resp = role === 'admin' 
-      ? await api.auth.adminLogin({ email: identifier, password: passwordValue })
-      : await api.auth.login({ identifier, password: passwordValue });
-
-    if (resp.requires2fa) {
-      // go to TwoFactor page and pass temp_login_token (if provided) and identifier/password fallback
-      navigate('/two-factor', { state: { tempLoginToken: resp.temp_login_token, identifier, password: passwordValue }});
-      return;
-    }
-
-    // Normal login success - store tokens and redirect
-    if (resp.access_token) {
-      sessionStorage.setItem("access_token", resp.access_token);
-      sessionStorage.setItem("refresh_token", resp.refresh_token);
-      // Store user data to avoid an immediate /me call
-      sessionStorage.setItem("user", JSON.stringify(resp.user));
-      
-      // Redirect based on role and status
-      if (resp.user?.role === 'admin') {
-        navigate("/admin", { replace: true });
-      } else if (resp.user?.status === 'verified') {
-        navigate("/dashboard", { replace: true });
-      } else {
-        navigate("/minimal-dashboard", { replace: true });
+      if (!identifier || !passwordValue) {
+        setError("Please enter both email and password");
+        setLoading(false);
+        return;
       }
+
+      // Use appropriate login endpoint based on role
+      const resp =
+        role === "admin"
+          ? await api.auth.adminLogin({ email: identifier, password: passwordValue })
+          : await api.auth.login({ identifier, password: passwordValue });
+
+      if (resp.requires2fa) {
+        // go to TwoFactor page and pass temp_login_token (if provided) and identifier/password fallback
+        navigate("/two-factor", {
+          state: { tempLoginToken: resp.temp_login_token, identifier, password: passwordValue },
+        });
+        return;
+      }
+
+      // Normal login success - store tokens and redirect
+      if (resp.access_token) {
+        sessionStorage.setItem("access_token", resp.access_token);
+        sessionStorage.setItem("refresh_token", resp.refresh_token);
+        // Store user data to avoid an immediate /me call
+        // sessionStorage.setItem("user", JSON.stringify(resp.user));
+        // Prefer resp.user but fall back to resp (some login endpoints return user at top-level)
+        const userToStore = resp.user || resp || null;
+        if (userToStore) {
+          sessionStorage.setItem("user", JSON.stringify(userToStore));
+        } else {
+          sessionStorage.removeItem("user");
+        }
+
+        console.debug("Login stored user:", userToStore, "raw resp:", resp);
+
+        // Redirect based on role and status
+        if ((userToStore && userToStore.role === "admin") || resp.user?.role === "admin") {
+          navigate("/admin", { replace: true });
+        } else if (userToStore?.status === "verified" || resp.user?.status === "verified") {
+          navigate("/dashboard", { replace: true });
+        } else {
+          navigate("/minimal-dashboard", { replace: true });
+        }
+      }
+    } catch (err) {
+      console.error("Login failed", err);
+      if (err instanceof TypeError && err.message === "Failed to fetch") {
+        setError("Unable to connect to the server. Please ensure the backend service is running.");
+      } else {
+        setError(err?.error?.message || err.message || "Login failed. Try again.");
+      }
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error('Login failed', err);
-    if (err instanceof TypeError && err.message === 'Failed to fetch') {
-      setError('Unable to connect to the server. Please ensure the backend service is running.');
-    } else {
-      setError(err?.error?.message || err.message || 'Login failed. Try again.');
-    }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div
