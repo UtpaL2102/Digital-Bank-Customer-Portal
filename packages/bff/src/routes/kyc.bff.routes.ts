@@ -5,6 +5,7 @@ import { forwardContextHeaders } from "../middlewares/auth.forwardContext.js";
 
 const router = Router();
 const target = process.env.AUTH_SERVICE_URL || "http://localhost:4001";
+console.log('KYC BFF proxy -> target =', target);
 
 // Proxy helper that also forwards user headers
 const kycProxy = createProxyMiddleware({

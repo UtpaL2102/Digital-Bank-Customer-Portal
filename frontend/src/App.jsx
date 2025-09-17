@@ -1,6 +1,7 @@
-// src/App.jsx
+// AUTH: added route protection - Route configuration with auth guards
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import TwoFactor from "./pages/TwoFactor";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -49,42 +50,157 @@ export default function App() {
   return (
     <Router>
       <Routes>
+        {/* Public routes */}
         <Route path="/" element={<RegisterStep1 />} />
         <Route path="/login" element={<Login />} />
         <Route path="/two-factor" element={<TwoFactor />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/register-step1" element={<RegisterStep1 />} />
-        <Route path="/register-step2" element={<RegisterStep2 />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/minimal-dashboard" element={<MinimalDashboard />} />
-        <Route path="/transfer-step1" element={<TransferStep1 />} />
-        <Route path="/transfer-details" element={<TransferDetails />} />
-        <Route path="/transfer-review" element={<TransferReview />} />
-        <Route path="/transfer-success" element={<TransferSuccess />} />
-        <Route path="/transaction-state" element={<TransactionState />} /> 
-        <Route path="/scheduled-transfers" element={<ScheduledTransfers />} />
-        <Route path="/transaction-dispute" element={<TransactionDispute />} />
-        <Route path="/account-details" element={<AccountDetails />} />
-        <Route path="/statements" element={<StatementsPage />} />
-        <Route path="/add-beneficiary" element={<AddBeneficiary />} />
-        <Route path="/notifications" element={<NotificationPreferences />} />
-        <Route path="/profile-security" element={<ProfileSecurity />} />
-        <Route path="/limit" element={<LimitPage />} />
-        <Route path="/chatbot-support" element={<ChatbotSupportPage />} />
-        <Route path="/Faq" element={<FaqPage />} />
-        <Route path="/kyc-status" element={<KycStatus />} />
-        <Route path="/chat-history" element={<ChatHistoryPage />} />
-        <Route path="/loans" element={<LoansOverviewPage />} />
-        <Route path="/apply-loan" element={<ApplyForLoanPage />} />
-        <Route path="/sessions" element={<ActiveSessions />} />
         <Route path="/unauthorized" element={<Unauthorized401 />} />
         <Route path="/forbidden" element={<Forbidden403 />} />
         <Route path="*" element={<NotFound404 />} />
-        <Route path="/notifications-list" element={<NotificationsPage />} />
-        <Route path="/verify-account" element={<VerifyAccount />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/two-factor-setup" element={<TwoFactorSetup />} />
+
+        {/* KYC routes - protected but don't require KYC verification */}
+        <Route path="/register-step2" element={
+          <ProtectedRoute requireKycVerified={false}>
+            <RegisterStep2 />
+          </ProtectedRoute>
+        } />
+        <Route path="/kyc-status" element={
+          <ProtectedRoute requireKycVerified={false}>
+            <KycStatus />
+          </ProtectedRoute>
+        } />
+        <Route path="/verify-account" element={
+          <ProtectedRoute requireKycVerified={false}>
+            <VerifyAccount />
+          </ProtectedRoute>
+        } />
+
+        {/* Protected routes - require authentication and KYC verification */}
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/minimal-dashboard" element={
+          <ProtectedRoute requireKycVerified={false}>
+            <MinimalDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/transfer-step1" element={
+          <ProtectedRoute>
+            <TransferStep1 />
+          </ProtectedRoute>
+        } />
+        <Route path="/transfer-details" element={
+          <ProtectedRoute>
+            <TransferDetails />
+          </ProtectedRoute>
+        } />
+        <Route path="/transfer-review" element={
+          <ProtectedRoute>
+            <TransferReview />
+          </ProtectedRoute>
+        } />
+        <Route path="/transfer-success" element={
+          <ProtectedRoute>
+            <TransferSuccess />
+          </ProtectedRoute>
+        } />
+        <Route path="/transaction-state" element={
+          <ProtectedRoute>
+            <TransactionState />
+          </ProtectedRoute>
+        } />
+        <Route path="/scheduled-transfers" element={
+          <ProtectedRoute>
+            <ScheduledTransfers />
+          </ProtectedRoute>
+        } />
+        <Route path="/transaction-dispute" element={
+          <ProtectedRoute>
+            <TransactionDispute />
+          </ProtectedRoute>
+        } />
+        <Route path="/account-details" element={
+          <ProtectedRoute>
+            <AccountDetails />
+          </ProtectedRoute>
+        } />
+        <Route path="/statements" element={
+          <ProtectedRoute>
+            <StatementsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/add-beneficiary" element={
+          <ProtectedRoute>
+            <AddBeneficiary />
+          </ProtectedRoute>
+        } />
+        <Route path="/notifications" element={
+          <ProtectedRoute>
+            <NotificationPreferences />
+          </ProtectedRoute>
+        } />
+        <Route path="/profile-security" element={
+          <ProtectedRoute>
+            <ProfileSecurity />
+          </ProtectedRoute>
+        } />
+        <Route path="/limit" element={
+          <ProtectedRoute>
+            <LimitPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/chatbot-support" element={
+          <ProtectedRoute>
+            <ChatbotSupportPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/Faq" element={
+          <ProtectedRoute>
+            <FaqPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/chat-history" element={
+          <ProtectedRoute>
+            <ChatHistoryPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/loans" element={
+          <ProtectedRoute>
+            <LoansOverviewPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/apply-loan" element={
+          <ProtectedRoute>
+            <ApplyForLoanPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/sessions" element={
+          <ProtectedRoute>
+            <ActiveSessions />
+          </ProtectedRoute>
+        } />
+        <Route path="/notifications-list" element={
+          <ProtectedRoute>
+            <NotificationsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/two-factor-setup" element={
+          <ProtectedRoute>
+            <TwoFactorSetup />
+          </ProtectedRoute>
+        } />
+
+        {/* Admin routes - require admin role */}
+        <Route path="/admin" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
 
 
 

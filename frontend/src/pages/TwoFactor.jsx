@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import TwoFactorForm from "./TwoFactorForm";
-import api from "../lib/api";
+import {api} from "../lib/api";
 
 export default function TwoFactorPage() {
   const { state } = useLocation();

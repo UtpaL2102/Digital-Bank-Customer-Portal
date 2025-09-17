@@ -1,12 +1,35 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../lib/api";
+import { getAuthToken, clearAuthTokens } from "../lib/authHelpers";
 import "../MinimalDashboard.css";
 
 export default function MinimalDashboard() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.auth.me(getAuthToken());
+        setUser(response.user);
+      } catch (error) {
+        // If error is about KYC, we can ignore it in minimal dashboard
+        if (!error.message?.includes('KYC')) {
+          console.error('Failed to fetch user:', error);
+        }
+      }
+    };
+    fetchUser();
+  }, []);
 
   const handleStartVerification = () => {
-    navigate("/register-step2"); // Redirect to step 2
+    navigate("/register-step2");
+  };
+
+  const handleLogout = () => {
+    clearAuthTokens();
+    navigate("/login");
   };
 
   return (
@@ -17,14 +40,14 @@ export default function MinimalDashboard() {
           <span>DigitalSecure</span>
         </a>
         <nav className="menu">
-          <a href="#" className="menu-item active">
+          <div className="menu-item active">
             <span className="material-icons">dashboard</span>
             <span>Dashboard</span>
-          </a>
-          <a href="#" className="menu-item logout">
+          </div>
+          <button onClick={handleLogout} className="menu-item logout">
             <span className="material-icons">logout</span>
             <span>Logout</span>
-          </a>
+          </button>
         </nav>
       </aside>
 
@@ -33,7 +56,8 @@ export default function MinimalDashboard() {
         {/* Header */}
         <header className="header">
           <div>
-            <h1>Welcome, Alex</h1>
+            <h1>Welcome, {user?.name || 'User'}</h1>
+            <p className="text-sm text-gray-600">Complete verification to access all features</p>
           </div>
         </header>
 
