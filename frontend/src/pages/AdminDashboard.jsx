@@ -5,6 +5,7 @@ import AdminKycDetail from "../components/AdminKycDetail";
 import AdminEmployeeList from "../components/AdminEmployeeList";
 import AdminBranchList from "../components/AdminBranchList";
 import AdminAuditLogs from "../components/AdminAuditLogs";
+import AdminLimitRequests from "../components/AdminLimitRequests";
 import { clearAuthTokens } from '../lib/authHelpers';
 
 export default function AdminDashboard() {
@@ -92,6 +93,18 @@ export default function AdminDashboard() {
             >
               Audit logs
             </NavLink>
+            <NavLink
+              to="/admin/limit-requests"
+              className={({ isActive }) =>
+                `whitespace-nowrap py-2 px-1 border-b-2 text-sm ${
+                  isActive
+                    ? "border-[#001BB7] font-bold text-gray-900"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`
+              }
+            >
+              Limit Requests
+            </NavLink>
           </nav>
         </div>
 
@@ -101,6 +114,7 @@ export default function AdminDashboard() {
           <Route path="kyc/:userId" element={<AdminKycDetail />} />
           <Route path="branches" element={<AdminBranchList />} />
           <Route path="audit" element={<AdminAuditLogs />} />
+          <Route path="limit-requests" element={<AdminLimitRequests />} />
         </Routes>
       </div>
     </div>

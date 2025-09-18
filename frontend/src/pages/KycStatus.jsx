@@ -10,6 +10,8 @@ export default function KycStatus() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [kycData, setKycData] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [latestNotification, setLatestNotification] = useState(null);
 
   useEffect(() => {
     const token = getAuthToken();
@@ -18,19 +20,50 @@ export default function KycStatus() {
       return;
     }
 
-    api.kyc
-      .getKycStatus(token)
-      .then((response) => {
-        setStatus(response.status);
-        setDocuments(response.documents || []);
-        setKycData(response);
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        // Get KYC status
+        const kycResponse = await api.kyc.getKycStatus(token);
+        console.log('KYC Status Response:', kycResponse);
+        
+        // Set status with proper case handling
+        const statusValue = (kycResponse.status || "").toUpperCase();
+        setStatus(statusValue);
+        setDocuments(kycResponse.documents || []);
+        setKycData(kycResponse);
+
+        // Try to get notifications if available
+        if (kycResponse.notification || kycResponse.message) {
+          setLatestNotification({
+            type: `kyc_${statusValue.toLowerCase()}`,
+            message: kycResponse.message || `KYC status: ${statusValue}`,
+            details: kycResponse.notification
+          });
+        }
+
         setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
+        console.error('Error loading KYC data:', err);
         setError("Failed to fetch KYC status. Please try again later.");
         setLoading(false);
-      });
-  }, [navigate]);
+      }
+    };
+
+    loadData();
+
+    // Set up polling for updates every 30 seconds while verifying
+    let pollInterval;
+    if (status === "VERIFYING" || status === "PENDING") {
+      pollInterval = setInterval(loadData, 30000);
+    }
+
+    return () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+    };
+  }, [navigate, status]);
 
   const [formData, setFormData] = useState({
     document_type: "",
@@ -99,10 +132,12 @@ export default function KycStatus() {
   const getStatusColor = (status) => {
     switch (status) {
       case "APPROVED":
+      case "VERIFIED":
         return "bg-green-500";
       case "REJECTED":
         return "bg-red-500";
       case "UNDER_REVIEW":
+      case "PENDING":
         return "bg-yellow-500";
       default:
         return "bg-gray-500";
@@ -317,6 +352,28 @@ export default function KycStatus() {
                   <p className="text-lg font-bold text-gray-800">{status}</p>
                 </div>
               </div>
+              {latestNotification && (
+                <div className={`p-4 rounded-lg ${
+                  status === "REJECTED" ? "bg-red-50" :
+                  status === "APPROVED" ? "bg-green-50" :
+                  "bg-blue-50"
+                }`}>
+                  <p className={`text-sm ${
+                    status === "REJECTED" ? "text-red-600" :
+                    status === "APPROVED" ? "text-green-600" :
+                    "text-blue-600"
+                  }`}>Latest Update</p>
+                  <p className="font-medium mt-1">
+                    {latestNotification.message}
+                  </p>
+                  {latestNotification.details && (
+                    <p className="text-sm mt-1 text-gray-600">
+                      {latestNotification.details}
+                    </p>
+                  )}
+                </div>
+              )}
+              
               {status === "REJECTED" && kycData?.rejectionReason && (
                 <div className="bg-red-50 p-4 rounded-lg">
                   <p className="text-sm text-red-600">Reason</p>
@@ -325,12 +382,24 @@ export default function KycStatus() {
                   </p>
                 </div>
               )}
+              
               {kycData?.lastUpdated && (
                 <div>
                   <p className="text-sm text-gray-500">Last Updated</p>
                   <p className="font-medium text-gray-800">
                     {new Date(kycData.lastUpdated).toLocaleString()}
                   </p>
+                </div>
+              )}
+
+              {(status === "APPROVED" || status === "VERIFIED") && (
+                <div className="mt-6">
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="w-full bg-gradient-to-r from-blue-900 to-blue-600 text-white font-semibold py-3 px-8 rounded-lg shadow-md hover:shadow-lg transition duration-300"
+                  >
+                    Go to Dashboard
+                  </button>
                 </div>
               )}
             </div>

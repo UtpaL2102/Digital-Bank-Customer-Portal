@@ -85,15 +85,30 @@ export default function ProtectedRoute({
       }
     } catch (error) {
       console.error('validateAuth error', error);
-      // If token invalid -> clear tokens
-      if (error.status === 401 || (error.message && error.message.includes('401'))) {
+      
+      // Extract error message and status
+      const errorMsg = error.message || '';
+      const errorStatus = error.status || (errorMsg.includes('401') ? 401 : errorMsg.includes('403') ? 403 : null);
+
+      // Handle different error cases
+      if (errorStatus === 401 || errorMsg.includes('401')) {
+        console.log('Clearing auth tokens due to 401');
         clearAuthTokens();
         setUser(null);
       }
-      // If backend returned KYC 403 (and your handleResponse throws), treat as unverified
-      else if (error.status === 403 || (error.message && error.message.includes('KYC'))) {
+      // If it's a KYC related error, keep the user logged in but mark as unverified
+      else if (
+        errorStatus === 403 || 
+        errorMsg.includes('KYC') || 
+        errorMsg.includes('verify')
+      ) {
+        console.log('Setting user as unverified due to KYC requirement');
         setUser({ status: 'unverified', role: 'user' });
-      } else {
+      } 
+      // For any other error, log out the user
+      else {
+        console.log('Setting user to null due to unexpected error');
+        clearAuthTokens();
         setUser(null);
       }
     } finally {
@@ -129,10 +144,15 @@ export default function ProtectedRoute({
   }
 
   // Check KYC verification if required
-  // Exempt admins from being forced to minimal-dashboard
-    if (requireKycVerified && user?.role !== 'admin' && user?.status !== 'verified') {
-      return <Navigate to="/minimal-dashboard" replace />;
-    }
+  // Exempt admins and users already on minimal-dashboard or kyc-status
+  if (requireKycVerified && 
+      user?.role !== 'admin' && 
+      user?.status !== 'verified' && 
+      !location.pathname.startsWith('/minimal-dashboard') && 
+      !location.pathname.startsWith('/kyc-status')) {
+    console.log('Redirecting unverified user to minimal dashboard');
+    return <Navigate to="/minimal-dashboard" replace />;
+  }
 
   return children;
 }

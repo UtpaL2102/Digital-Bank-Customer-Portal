@@ -293,6 +293,21 @@ export const admin = {
         .then(handleResponse),
   },
 
+  // Limit requests management
+  limitRequests: {
+    list: (token) =>
+      fetch(`${BASE_URL}/api/v1/admin/limit-requests`, createRequestOptions('GET', null, token))
+        .then(handleResponse),
+
+    approve: (id, data, token) =>
+      fetch(`${BASE_URL}/api/v1/admin/limit-requests/${id}/approve`, createRequestOptions('PUT', data, token))
+        .then(handleResponse),
+
+    decline: (id, data, token) =>
+      fetch(`${BASE_URL}/api/v1/admin/limit-requests/${id}/decline`, createRequestOptions('PUT', data, token))
+        .then(handleResponse),
+  },
+
   // Audit logs
   audit: {
     list: async (params, token) => {
