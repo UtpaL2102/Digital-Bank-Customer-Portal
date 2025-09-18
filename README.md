@@ -213,12 +213,18 @@ digital-bank/                        <-- Root repo (monorepo)
 ### 1️⃣ Install dependencies
 
 Run from the root:
+Step 1:
+
+```bash
+npm install -g pnpm
+```
+Step 2:
 
 ```bash
 pnpm install
 ```
 
-### 2️⃣ Start infrastructure (DB + Eureka)
+### 2️⃣ Start infrastructure (DB + Eureka) only in porduction
 
 ```bash
 docker-compose -f infra/docker-compose.dev.yml up -d
@@ -234,25 +240,26 @@ Check Eureka UI at:
 
 ---
 
-### 3️⃣ Generate Prisma clients
+### 3️⃣ Generate Prisma clients (Step 3)
 
 Run once for each service from root folder:
 
 ```bash
 pnpm -C packages/auth-service prisma:generate
-pnpm -C packages/account-service prisma:generate
+pnpm -C packages/auth-service prisma:migrate
+
 ```
 
 ### 4️⃣ Apply database migrations
 
 ```bash
-pnpm -C packages/auth-service prisma:migrate
+pnpm -C packages/account-service prisma:generate
 pnpm -C packages/account-service prisma:migrate
 ```
 
 ---
 
-### 5️⃣ Run microservices
+### 5️⃣ Run microservices (Step 4)
 
 Each service can be started individually:
 

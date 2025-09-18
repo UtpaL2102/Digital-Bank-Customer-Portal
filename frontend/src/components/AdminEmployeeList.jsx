@@ -8,25 +8,37 @@ export default function AdminEmployeeList() {
   const [error, setError] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
+  const [branches, setBranches] = useState([]);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    branch: '',
-    role: '',
+    user_id: '',
+    branch_id: '',
+    position: '',
   });
 
   const employeeApi = api.admin.employees;
 
   useEffect(() => {
     loadEmployees();
+    loadBranches();
   }, []);
+
+  const loadBranches = async () => {
+    try {
+      const token = getAuthToken();
+      const data = await api.admin.branches.list(token);
+      setBranches(data.branches || []);
+    } catch (err) {
+      console.error('Failed to load branches:', err);
+      setError('Failed to load branches. Please try again later.');
+    }
+  };
 
   const loadEmployees = async () => {
     try {
       setLoading(true);
       const token = getAuthToken();
       const data = await employeeApi.list(token);
-      setEmployees(data.items || []);
+      setEmployees(data.employees || []);
     } catch (err) {
       console.error('Failed to load employees:', err);
       setError('Failed to load employees. Please try again later.');
@@ -72,10 +84,9 @@ export default function AdminEmployeeList() {
   const handleEdit = (employee) => {
     setEditingEmployee(employee);
     setFormData({
-      name: employee.name,
-      email: employee.email,
-      branch: employee.branch,
-      role: employee.role,
+      user_id: employee.user_id,
+      branch_id: employee.branch_id,
+      position: employee.position,
     });
     setShowAddModal(true);
   };
@@ -84,10 +95,9 @@ export default function AdminEmployeeList() {
     setShowAddModal(false);
     setEditingEmployee(null);
     setFormData({
-      name: '',
-      email: '',
-      branch: '',
-      role: '',
+      user_id: '',
+      branch_id: '',
+      position: '',
     });
   };
 
@@ -121,20 +131,20 @@ export default function AdminEmployeeList() {
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-gray-200">
-              <th className="py-3 px-4 font-medium text-gray-500 text-sm">Name</th>
-              <th className="py-3 px-4 font-medium text-gray-500 text-sm">Email</th>
-              <th className="py-3 px-4 font-medium text-gray-500 text-sm">Branch</th>
-              <th className="py-3 px-4 font-medium text-gray-500 text-sm">Role</th>
+              <th className="py-3 px-4 font-medium text-gray-500 text-sm">Employee ID</th>
+              <th className="py-3 px-4 font-medium text-gray-500 text-sm">User ID</th>
+              <th className="py-3 px-4 font-medium text-gray-500 text-sm">Branch ID</th>
+              <th className="py-3 px-4 font-medium text-gray-500 text-sm">Position</th>
               <th className="py-3 px-4 font-medium text-gray-500 text-sm">Actions</th>
             </tr>
           </thead>
           <tbody>
             {employees.map((employee, index) => (
               <tr key={employee.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                <td className="py-4 px-4 text-gray-900 font-medium">{employee.name}</td>
-                <td className="py-4 px-4 text-gray-600">{employee.email}</td>
-                <td className="py-4 px-4 text-gray-600">{employee.branch}</td>
-                <td className="py-4 px-4 text-gray-600">{employee.role}</td>
+                <td className="py-4 px-4 text-gray-900 font-medium">{employee.id}</td>
+                <td className="py-4 px-4 text-gray-600">{employee.user_id}</td>
+                <td className="py-4 px-4 text-gray-600">{employee.branch_id}</td>
+                <td className="py-4 px-4 text-gray-600">{employee.position}</td>
                 <td className="py-4 px-4 text-sm">
                   <button
                     onClick={() => handleEdit(employee)}
@@ -167,44 +177,41 @@ export default function AdminEmployeeList() {
               <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Name</label>
+                    <label className="block text-sm font-medium text-gray-700">User ID</label>
                     <input
                       type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Email</label>
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      value={formData.user_id}
+                      onChange={(e) => setFormData({ ...formData, user_id: e.target.value })}
+                      placeholder="Enter the user ID"
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                       required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Branch</label>
-                    <input
-                      type="text"
-                      value={formData.branch}
-                      onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Role</label>
                     <select
-                      value={formData.role}
-                      onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                      value={formData.branch_id}
+                      onChange={(e) => setFormData({ ...formData, branch_id: e.target.value })}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                       required
                     >
-                      <option value="">Select role...</option>
+                      <option value="">Select branch...</option>
+                      {branches.map(branch => (
+                        <option key={branch.id} value={branch.id}>
+                          {branch.name} ({branch.code})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Position</label>
+                    <select
+                      value={formData.position}
+                      onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    >
+                      <option value="">Select position...</option>
                       <option value="Manager">Manager</option>
                       <option value="Teller">Teller</option>
                       <option value="Advisor">Advisor</option>

@@ -77,7 +77,7 @@ export default function AdminKycList() {
 
   return (
     <div className="bg-white rounded-lg shadow">
-      <div className="sm:flex sm:items-center p-4 sm:p-6">
+      <div className="sm:flex sm:items-center p-10 sm:p-6">
         <div className="sm:flex-auto">
           <h1 className="text-xl font-semibold text-gray-900">KYC Requests</h1>
           <p className="mt-2 text-sm text-gray-700">
@@ -86,7 +86,7 @@ export default function AdminKycList() {
         </div>
       </div>
       <div className="flow-root">
-        <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-4">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <table className="min-w-full divide-y divide-gray-300">
               <thead>

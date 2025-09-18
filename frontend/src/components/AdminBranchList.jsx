@@ -23,10 +23,11 @@ export default function AdminBranchList() {
       setLoading(true);
       const token = getAuthToken();
       const data = await api.admin.branches.list(token);
-      setBranches(data.items || []);
+      console.log('Branches data:', data); // Debug log
+      setBranches(data.branches || []);
     } catch (err) {
       console.error('Failed to load branches:', err);
-      setError('Failed to load branches. Please try again later.');
+      setError(err.message || 'Failed to load branches. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -35,8 +36,10 @@ export default function AdminBranchList() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = getAuthToken();
+    setError(null);
     
     try {
+      setLoading(true);
       if (editingBranch) {
         await api.admin.branches.update(editingBranch.id, formData, token);
       } else {
@@ -47,7 +50,9 @@ export default function AdminBranchList() {
       handleCloseModal();
     } catch (err) {
       console.error('Failed to save branch:', err);
-      setError('Failed to save branch. Please try again.');
+      setError(err.message || 'Failed to save branch. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,12 +62,16 @@ export default function AdminBranchList() {
     }
 
     try {
+      setLoading(true);
+      setError(null);
       const token = getAuthToken();
       await api.admin.branches.remove(id, token);
       await loadBranches();
     } catch (err) {
       console.error('Failed to remove branch:', err);
-      setError('Failed to remove branch. Please try again.');
+      setError(err.message || 'Failed to remove branch. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -116,35 +125,47 @@ export default function AdminBranchList() {
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-gray-200">
-              <th className="py-3 px-4 font-medium text-gray-500 text-sm">Code</th>
-              <th className="py-3 px-4 font-medium text-gray-500 text-sm">Name</th>
+              <th className="py-3 px-4 font-medium text-gray-500 text-sm">Branch Code</th>
+              <th className="py-3 px-4 font-medium text-gray-500 text-sm">Branch Name</th>
               <th className="py-3 px-4 font-medium text-gray-500 text-sm">Address</th>
-              <th className="py-3 px-4 font-medium text-gray-500 text-sm">Actions</th>
+              <th className="py-3 px-4 font-medium text-gray-500 text-sm">Created At</th>
+              <th className="py-3 px-4 font-medium text-gray-500 text-sm text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {branches.map((branch, index) => (
-              <tr key={branch.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                <td className="py-4 px-4 text-gray-600">{branch.code}</td>
-                <td className="py-4 px-4 text-gray-900 font-medium">{branch.name}</td>
-                <td className="py-4 px-4 text-gray-600">{branch.address}</td>
-                <td className="py-4 px-4 text-sm">
-                  <button
-                    onClick={() => handleEdit(branch)}
-                    className="text-gray-600 hover:text-[#0046FF] hover:underline"
-                  >
-                    Edit
-                  </button>
-                  <span className="text-gray-300 mx-1">•</span>
-                  <button
-                    onClick={() => handleRemove(branch.id)}
-                    className="text-gray-600 hover:text-red-600 hover:underline"
-                  >
-                    Remove
-                  </button>
+            {branches.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="py-8 text-center text-gray-500">
+                  No branches found. Click "Add Branch" to create one.
                 </td>
               </tr>
-            ))}
+            ) : (
+              branches.map((branch, index) => (
+                <tr key={branch.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                  <td className="py-4 px-4 text-gray-600 font-mono">{branch.code}</td>
+                  <td className="py-4 px-4 text-gray-900 font-medium">{branch.name}</td>
+                  <td className="py-4 px-4 text-gray-600">{branch.address || '-'}</td>
+                  <td className="py-4 px-4 text-gray-600 text-sm">
+                    {new Date(branch.created_at).toLocaleString()}
+                  </td>
+                  <td className="py-4 px-4 text-sm text-right">
+                    <button
+                      onClick={() => handleEdit(branch)}
+                      className="text-gray-600 hover:text-[#0046FF] hover:underline"
+                    >
+                      Edit
+                    </button>
+                    <span className="text-gray-300 mx-1">•</span>
+                    <button
+                      onClick={() => handleRemove(branch.id)}
+                      className="text-gray-600 hover:text-red-600 hover:underline"
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -160,49 +181,73 @@ export default function AdminBranchList() {
               <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Branch Code</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Branch Code</label>
                     <input
                       type="text"
                       value={formData.code}
-                      onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                       required
+                      pattern="[A-Z0-9]{3,8}"
+                      title="Branch code must be 3-8 uppercase letters or numbers"
+                      placeholder="e.g. BLR001"
+                      maxLength={8}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0046FF] focus:ring-[#0046FF] sm:text-sm font-mono"
+                      disabled={!!editingBranch}
                     />
+                    <p className="mt-1 text-xs text-gray-500">3-8 uppercase letters or numbers</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Branch Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Branch Name</label>
                     <input
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                       required
+                      minLength={3}
+                      maxLength={50}
+                      placeholder="e.g. Bangalore Main Branch"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0046FF] focus:ring-[#0046FF] sm:text-sm"
                     />
+                    <p className="mt-1 text-xs text-gray-500">3-50 characters</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Address</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
                     <textarea
                       value={formData.address}
                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      rows="3"
                       required
+                      rows={3}
+                      minLength={10}
+                      maxLength={200}
+                      placeholder="Enter the complete branch address"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0046FF] focus:ring-[#0046FF] sm:text-sm"
                     />
+                    <p className="mt-1 text-xs text-gray-500">10-200 characters</p>
                   </div>
                 </div>
                 <div className="mt-6 flex justify-end space-x-3">
                   <button
                     type="button"
                     onClick={handleCloseModal}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-gradient-to-r from-[#001BB7] to-[#0046FF] text-white rounded-md hover:shadow-lg"
+                    disabled={loading}
+                    className={`${
+                      loading ? 'opacity-75 cursor-not-allowed' : ''
+                    } px-4 py-2 bg-gradient-to-r from-[#001BB7] to-[#0046FF] text-white rounded-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0046FF] flex items-center`}
                   >
-                    {editingBranch ? 'Update' : 'Add'}
+                    {loading ? (
+                      <>
+                        <div className="w-4 h-4 mr-2 border-t-2 border-r-2 border-white rounded-full animate-spin"></div>
+                        <span>Saving...</span>
+                      </>
+                    ) : (
+                      <span>{editingBranch ? 'Update Branch' : 'Add Branch'}</span>
+                    )}
                   </button>
                 </div>
               </form>
