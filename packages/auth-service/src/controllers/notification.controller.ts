@@ -27,3 +27,25 @@ export async function markRead(req: Request, res: Response) {
     res.status(500).json({ error: { code: "INTERNAL_ERROR", message: "Unable to mark as read" } });
   }
 }
+
+export async function markAllRead(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user.id as string;
+    const result = await svc.markAllRead(userId);
+    res.json({ ok: true, count: result.count });
+  } catch (e) {
+    console.error("markAllRead:", e);
+    res.status(500).json({ error: { code: "INTERNAL_ERROR", message: "Unable to mark all as read" } });
+  }
+}
+
+export async function getUnreadCount(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user.id as string;
+    const count = await svc.getUnreadCount(userId);
+    res.json({ count });
+  } catch (e) {
+    console.error("getUnreadCount:", e);
+    res.status(500).json({ error: { code: "INTERNAL_ERROR", message: "Unable to get unread count" } });
+  }
+}

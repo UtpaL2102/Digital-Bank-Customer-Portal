@@ -1,10 +1,41 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../lib/api";
+import { getAuthToken } from "../lib/authHelpers";
 
 export default function NotificationsPage() {
   const navigate = useNavigate();
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const notifications = [
+  useEffect(() => {
+    const token = getAuthToken();
+    api.notifications.listNotifications(token)
+      .then(response => {
+        setNotifications(response.items || []);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error("Failed to load notifications:", error);
+        setLoading(false);
+      });
+  }, []);
+
+  const handleMarkRead = async (notificationId) => {
+    try {
+      const token = getAuthToken();
+      await api.notifications.markNotificationRead(notificationId, token);
+      // Update local state to mark as read
+      setNotifications(notifications.map(n => 
+        n.id === notificationId ? { ...n, read: true } : n
+      ));
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  };
+
+  // Keep the demo notifications as a fallback if API fails
+  const demoNotifications = [
     {
       id: 1,
       title: "Transaction Successful",
@@ -64,21 +95,29 @@ export default function NotificationsPage() {
           </div>
 
           <div className="bg-white rounded-lg shadow-sm p-6">
-            {notifications.length > 0 ? (
+            {loading ? (
+              <p className="text-gray-600 text-sm text-center">Loading notifications...</p>
+            ) : notifications.length > 0 ? (
               <ul className="divide-y divide-gray-200">
                 {notifications.map((note) => (
-                  <li key={note.id} className="py-4 flex items-start">
+                  <li 
+                    key={note.id} 
+                    className="py-4 flex items-start cursor-pointer hover:bg-gray-50"
+                    onClick={() => !note.read && handleMarkRead(note.id)}
+                  >
                     <div
                       className={`flex-shrink-0 w-3 h-3 rounded-full mt-1 mr-4 ${getBadgeColor(
                         note.type
                       )}`}
                     ></div>
-                    <div>
+                    <div className={note.read ? 'opacity-60' : ''}>
                       <p className="text-sm font-medium text-gray-900">
                         {note.title}
                       </p>
                       <p className="text-sm text-gray-600">{note.message}</p>
-                      <span className="text-xs text-gray-400">{note.time}</span>
+                      <span className="text-xs text-gray-400">
+                        {new Date(note.created_at).toLocaleString()}
+                      </span>
                     </div>
                   </li>
                 ))}

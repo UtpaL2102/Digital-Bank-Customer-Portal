@@ -11,7 +11,11 @@ const auth = req.header("authorization");
 if (!auth?.startsWith("Bearer ")) throw new Error("NO_TOKEN");
 const token = auth.slice("Bearer ".length);
 const { payload } = await jwtVerify(token, secret(), { issuer, audience });
-(req as any).user = { id: payload.sub, role: payload.role, status: payload.status };
+req.user = { 
+  id: payload.sub as string, 
+  role: payload.role as string, 
+  status: payload.status as string 
+};
 next();
 } catch {
 res.status(401).json({ error: { code: "UNAUTHENTICATED", message: "Invalid or missing token" } });

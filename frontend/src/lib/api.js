@@ -4,10 +4,27 @@ const BASE_URL = '';  // Using relative URLs with proxy
 // Helper to handle API responses
 const handleResponse = async (response) => {
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: { message: 'Unknown error occurred' } }));
-    throw new Error(error.error?.message || 'API request failed');
+    let error;
+    try {
+      const data = await response.json();
+      error = data.error?.message || `HTTP ${response.status}`;
+    } catch (e) {
+      error = `HTTP ${response.status}`;
+    }
+    const err = new Error(error);
+    err.status = response.status;
+    throw err;
   }
-  return response.json();
+  
+  try {
+    const data = await response.json();
+    if (!data) {
+      throw new Error('Empty response from server');
+    }
+    return data;
+  } catch (e) {
+    throw new Error('Invalid JSON response from server');
+  }
 };
 
 // Helper to create request options with authorization
@@ -57,8 +74,8 @@ export const auth = {
     fetch(`${BASE_URL}/api/v1/auth/password-reset/verify`, createRequestOptions('POST', resetData))
       .then(handleResponse),
 
-  enable2fa: (token) =>
-    fetch(`${BASE_URL}/api/v1/auth/2fa/enable`, createRequestOptions('POST', null, token))
+  enable2fa: (data, token) =>
+    fetch(`${BASE_URL}/api/v1/auth/2fa/enable`, createRequestOptions('POST', data, token))
       .then(handleResponse),
 
   disable2fa: (body, token) =>
@@ -74,6 +91,29 @@ verify2fa: (data, token) => fetch(`${BASE_URL}/api/v1/auth/2fa/verify`, createRe
       
   me: (token) =>
     fetch(`${BASE_URL}/api/v1/me`, createRequestOptions('GET', null, token))
+      .then(handleResponse),
+
+  // Session Management
+  sessions: {
+    list: (token) =>
+      fetch(`${BASE_URL}/api/v1/auth/sessions`, createRequestOptions('GET', null, token))
+        .then(handleResponse)
+        .then(response => ({
+          sessions: Array.isArray(response.items) ? response.items : response.sessions || []
+        })),
+
+    revoke: (sessionId, token) =>
+      fetch(`${BASE_URL}/api/v1/auth/sessions/${sessionId}`, createRequestOptions('DELETE', null, token))
+        .then(handleResponse),
+
+    revokeAll: (token) =>
+      fetch(`${BASE_URL}/api/v1/auth/sessions`, createRequestOptions('DELETE', null, token))
+        .then(handleResponse),
+  },
+
+  // 2FA Backup Codes
+  backupCodes: (token) =>
+    fetch(`${BASE_URL}/api/v1/auth/2fa/backup-codes`, createRequestOptions('GET', null, token))
       .then(handleResponse),
 };
 
@@ -251,6 +291,14 @@ export const notifications = {
   markNotificationRead: (notificationId, token) =>
     fetch(`${BASE_URL}/api/v1/notifications/${notificationId}/read`, createRequestOptions('POST', null, token))
       .then(handleResponse),
+      
+  markAllRead: (token) =>
+    fetch(`${BASE_URL}/api/v1/notifications/read-all`, createRequestOptions('POST', null, token))
+      .then(handleResponse),
+      
+  getUnreadCount: (token) =>
+    fetch(`${BASE_URL}/api/v1/notifications/unread-count`, createRequestOptions('GET', null, token))
+      .then(handleResponse),
 };
 
 // Admin API functions
@@ -342,6 +390,28 @@ export const admin = {
   }
 };
 
+// Profile Management API functions
+export const profile = {
+  getMe: (token) =>
+    fetch(`${BASE_URL}/api/v1/me`, createRequestOptions('GET', null, token))
+      .then(handleResponse),
+
+  updateMe: (data, token) =>
+    fetch(`${BASE_URL}/api/v1/me`, createRequestOptions('PUT', data, token))
+      .then(handleResponse),
+};
+
+// Notification Preferences API functions
+export const notificationPrefs = {
+  get: (token) =>
+    fetch(`${BASE_URL}/api/v1/notification-preferences`, createRequestOptions('GET', null, token))
+      .then(handleResponse),
+
+  update: (data, token) =>
+    fetch(`${BASE_URL}/api/v1/notification-preferences`, createRequestOptions('PUT', data, token))
+      .then(handleResponse),
+};
+
 // Export all API functions
 export const api = {
   auth,
@@ -351,5 +421,7 @@ export const api = {
   loans,
   beneficiaries,
   notifications,
+  notificationPrefs,
+  profile,
   admin,
 };

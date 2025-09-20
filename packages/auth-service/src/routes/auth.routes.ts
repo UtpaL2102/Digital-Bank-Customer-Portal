@@ -13,7 +13,9 @@ authRouter.post("/auth/register", validate(RegisterSchema), ctrl.register);
 
 authRouter.post("/auth/login", validate(LoginSchema), ctrl.login);
 
+// Profile management
 authRouter.get("/me", requireAuth, ctrl.me);
+authRouter.put("/me", requireAuth, ctrl.updateMe);
 
 // authRouter.post("/auth/register-admin", ctrl.registerAdmin);
 
@@ -29,5 +31,8 @@ authRouter.post("/auth/2fa/login-verify", mfaCtrl.loginVerify);
 authRouter.post("/auth/change-password", requireAuth, pwdCtrl.changePassword);
 authRouter.post("/auth/password-reset/request", pwdCtrl.requestPasswordReset);
 authRouter.post("/auth/password-reset/verify", pwdCtrl.verifyPasswordReset);
+
+// KYC approval (admin only)
+authRouter.post("/users/:userId/approve-kyc", requireAuth, ctrl.approveKyc);
 
 export default authRouter;
