@@ -39,13 +39,6 @@ const TransferStep1 = () => {
 
   return (
     <div className="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-          <h1 className="text-xl font-semibold text-gray-900">DigitalSecure</h1>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-5xl mx-auto">

@@ -37,6 +37,30 @@ import MinimalDashboard from "./pages/MinimalDashboard";
 import VerifyAccount from "./pages/VerifyAccount";
 import AdminDashboard from "./pages/AdminDashboard";
 import TwoFactorSetup from "./pages/TwoFactorSetup";
+import WithNavbar from "./components/WithNavbar";
+
+// Wrap all components that need the navbar with WithNavbar HOC
+const WrappedComponents = {
+  AccountDetails: WithNavbar(AccountDetails),
+  TransferStep1: WithNavbar(TransferStep1),
+  TransferDetails: WithNavbar(TransferDetails),
+  TransferReview: WithNavbar(TransferReview),
+  TransferSuccess: WithNavbar(TransferSuccess),
+  StatementsPage: WithNavbar(StatementsPage),
+  LoansOverviewPage: WithNavbar(LoansOverviewPage),
+  LimitPage: WithNavbar(LimitPage),
+  NotificationsPage: WithNavbar(NotificationsPage),
+  ProfileSecurity: WithNavbar(ProfileSecurity),
+  ChatbotSupportPage: WithNavbar(ChatbotSupportPage),
+  ChatHistoryPage: WithNavbar(ChatHistoryPage),
+  ActiveSessions: WithNavbar(ActiveSessions),
+  TransactionDispute: WithNavbar(TransactionDispute),
+  AddBeneficiary: WithNavbar(AddBeneficiary),
+  NotificationPreferences: WithNavbar(NotificationPreferences),
+  ScheduledTransfers: WithNavbar(ScheduledTransfers),
+  ApplyForLoanPage: WithNavbar(ApplyForLoanPage),
+  FaqPage: WithNavbar(FaqPage),
+};
 
 
 
@@ -91,22 +115,22 @@ export default function App() {
         } />
         <Route path="/transfer-step1" element={
           <ProtectedRoute>
-            <TransferStep1 />
+            <WrappedComponents.TransferStep1 />
           </ProtectedRoute>
         } />
         <Route path="/transfer-details" element={
           <ProtectedRoute>
-            <TransferDetails />
+            <WrappedComponents.TransferDetails />
           </ProtectedRoute>
         } />
         <Route path="/transfer-review" element={
           <ProtectedRoute>
-            <TransferReview />
+            <WrappedComponents.TransferReview />
           </ProtectedRoute>
         } />
         <Route path="/transfer-success" element={
           <ProtectedRoute>
-            <TransferSuccess />
+            <WrappedComponents.TransferSuccess />
           </ProtectedRoute>
         } />
         <Route path="/transaction-state" element={
@@ -116,77 +140,77 @@ export default function App() {
         } />
         <Route path="/scheduled-transfers" element={
           <ProtectedRoute>
-            <ScheduledTransfers />
+            <WrappedComponents.ScheduledTransfers />
           </ProtectedRoute>
         } />
         <Route path="/transaction-dispute" element={
           <ProtectedRoute>
-            <TransactionDispute />
+            <WrappedComponents.TransactionDispute />
           </ProtectedRoute>
         } />
         <Route path="/account-details" element={
           <ProtectedRoute>
-            <AccountDetails />
+            <WrappedComponents.AccountDetails />
           </ProtectedRoute>
         } />
         <Route path="/statements" element={
           <ProtectedRoute>
-            <StatementsPage />
+            <WrappedComponents.StatementsPage />
           </ProtectedRoute>
         } />
         <Route path="/add-beneficiary" element={
           <ProtectedRoute>
-            <AddBeneficiary />
+            <WrappedComponents.AddBeneficiary />
           </ProtectedRoute>
         } />
         <Route path="/notifications" element={
           <ProtectedRoute>
-            <NotificationPreferences />
+            <WrappedComponents.NotificationPreferences />
           </ProtectedRoute>
         } />
         <Route path="/profile-security" element={
           <ProtectedRoute>
-            <ProfileSecurity />
+            <WrappedComponents.ProfileSecurity />
           </ProtectedRoute>
         } />
         <Route path="/limit" element={
           <ProtectedRoute>
-            <LimitPage />
+            <WrappedComponents.LimitPage />
           </ProtectedRoute>
         } />
         <Route path="/chatbot-support" element={
           <ProtectedRoute>
-            <ChatbotSupportPage />
+            <WrappedComponents.ChatbotSupportPage />
           </ProtectedRoute>
         } />
         <Route path="/Faq" element={
           <ProtectedRoute>
-            <FaqPage />
+            <WrappedComponents.FaqPage />
           </ProtectedRoute>
         } />
         <Route path="/chat-history" element={
           <ProtectedRoute>
-            <ChatHistoryPage />
+            <WrappedComponents.ChatHistoryPage />
           </ProtectedRoute>
         } />
         <Route path="/loans" element={
           <ProtectedRoute>
-            <LoansOverviewPage />
+            <WrappedComponents.LoansOverviewPage />
           </ProtectedRoute>
         } />
         <Route path="/apply-loan" element={
           <ProtectedRoute>
-            <ApplyForLoanPage />
+            <WrappedComponents.ApplyForLoanPage />
           </ProtectedRoute>
         } />
         <Route path="/sessions" element={
           <ProtectedRoute>
-            <ActiveSessions />
+            <WrappedComponents.ActiveSessions />
           </ProtectedRoute>
         } />
         <Route path="/notifications-list" element={
           <ProtectedRoute>
-            <NotificationsPage />
+            <WrappedComponents.NotificationsPage />
           </ProtectedRoute>
         } />
         <Route path="/two-factor-setup" element={

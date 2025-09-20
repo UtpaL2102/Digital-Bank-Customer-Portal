@@ -150,6 +150,18 @@ export default function Dashboard() {
             <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
               <span className="font-medium text-gray-600 dark:text-gray-200">A</span>
             </div>
+
+            {/* Logout Button */}
+            <button
+              onClick={() => {
+                sessionStorage.clear();
+                navigate('/login');
+              }}
+              className="p-2 hover:bg-gray-100 rounded-full"
+              title="Logout"
+            >
+              <span className="material-icons text-gray-600">logout</span>
+            </button>
           </div>
         </header>
 

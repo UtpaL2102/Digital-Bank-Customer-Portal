@@ -6,13 +6,6 @@ export default function TransferDetails() {
 
   return (
     <div className="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <h1 className="text-xl font-semibold text-gray-800">Digital Bank</h1>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-5xl mx-auto">
