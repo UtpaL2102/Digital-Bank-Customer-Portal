@@ -28,10 +28,24 @@ export default function TwoFactorPage() {
 
       const resp = await api.auth.loginVerify2fa(payload);
       if (resp?.access_token) {
-        // persist tokens (replace with secure storage in production)
+        // persist tokens and user data
         sessionStorage.setItem("access_token", resp.access_token);
         sessionStorage.setItem("refresh_token", resp.refresh_token);
-        navigate("/minimal-dashboard", { replace: true });
+        
+        // Store user data
+        const userToStore = resp.user || resp || null;
+        if (userToStore) {
+          sessionStorage.setItem("user", JSON.stringify(userToStore));
+        }
+
+        // Navigate based on user role and status
+        if (userToStore?.role === "admin") {
+          navigate("/admin", { replace: true });
+        } else if (userToStore?.status === "verified") {
+          navigate("/dashboard", { replace: true });
+        } else {
+          navigate("/minimal-dashboard", { replace: true });
+        }
         return;
       }
       throw new Error("2FA login verify failed");
@@ -42,13 +56,27 @@ export default function TwoFactorPage() {
         throw new Error("Missing auth token for 2FA setup verification");
       }
       const resp = await api.auth.verify2fa({ temp_secret_id: tempSecretId, code: codeOrBackup }, token);
-      // expect resp.backup_codes
-      if (resp?.backup_codes) {
-        // show backup codes or send user to a page to save them
-        navigate("/profile-security", { state: { backup_codes: resp.backup_codes }, replace: true });
-        return;
+      if (!resp) {
+        throw new Error("No response from 2FA verification");
       }
-      throw new Error("2FA setup verify failed");
+
+      // Store backup codes and update session storage
+      if (resp.backup_codes) {
+        sessionStorage.setItem('pending_backup_codes', JSON.stringify(resp.backup_codes));
+      }
+      
+      // Fetch fresh profile to get updated 2FA status
+      const updatedProfile = await api.profile.getMe(token);
+      sessionStorage.setItem('user', JSON.stringify(updatedProfile.user));
+      
+      // Navigate back to profile security with success message
+      navigate("/profile-security", { 
+        state: { 
+          message: "2FA has been enabled successfully. Click 'Show Backup Codes' to view and save your backup codes." 
+        }, 
+        replace: true 
+      });
+      return;
     } else {
       // no context — go back to login
       navigate("/login");
@@ -57,7 +85,7 @@ export default function TwoFactorPage() {
   }
 
   return (
-    <div className="bg-[#F5F7FA] min-h-screen flex items-center justify-center p-4">
+    <div className="bg-[#F5F7FA] min-h-screen flex items-center justify-center p-10">
       <div className="max-w-2xl w-full grid md:grid-cols-2 gap-6">
         {/* Show QR for setup flow if available */}
         {otpauth_url ? (

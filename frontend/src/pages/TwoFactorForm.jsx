@@ -103,7 +103,7 @@ export default function TwoFactorForm({
   }
 
   return (
-    <div className="bg-white p-8 rounded-xl shadow-lg max-w-sm w-full">
+    <div className="bg-white flex flex-col justify-center items-center p-8 rounded-xl shadow-lg w-fit">
       <div className="text-center mb-6">
         <h1 className="text-3xl font-bold text-[#001BB7]">DigitalSecure</h1>
         <h2 className="text-xl font-semibold text-gray-800 mt-4">

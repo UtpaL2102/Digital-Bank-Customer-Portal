@@ -29,3 +29,8 @@ export const LoginVerifySchema = z.object({
   password: z.string().optional(),
   code: z.string().min(4)
 });
+
+export const UpdateProfileSchema = z.object({
+  name: z.string().min(2).max(50),
+  phone_number: z.string().min(7).max(20).optional(),
+});

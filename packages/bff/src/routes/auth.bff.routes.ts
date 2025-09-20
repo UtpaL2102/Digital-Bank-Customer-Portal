@@ -130,5 +130,67 @@ authBffRouter.post("/api/v1/auth/password-reset/verify", async (req, res, next) 
   }
 });
 
+// Profile management
+authBffRouter.put("/api/v1/me", async (req, res, next) => {
+  try {
+    const r = await authClient.put("/me", req.body, { headers: forwardContextHeaders(req) });
+    res.status(r.status).json(r.data);
+  } catch (e: any) {
+    if (e.response) return res.status(e.response.status).json(e.response.data);
+    next(e);
+  }
+});
+
+// Session management
+authBffRouter.get("/api/v1/auth/sessions", async (req, res, next) => {
+  try {
+    const r = await authClient.get("/auth/sessions", { headers: forwardContextHeaders(req) });
+    res.status(r.status).json(r.data);
+  } catch (e: any) {
+    if (e.response) return res.status(e.response.status).json(e.response.data);
+    next(e);
+  }
+});
+
+authBffRouter.delete("/api/v1/auth/sessions/:id", async (req, res, next) => {
+  try {
+    const r = await authClient.delete(`/auth/sessions/${req.params.id}`, { headers: forwardContextHeaders(req) });
+    res.status(r.status).json(r.data);
+  } catch (e: any) {
+    if (e.response) return res.status(e.response.status).json(e.response.data);
+    next(e);
+  }
+});
+
+authBffRouter.delete("/api/v1/auth/sessions", async (req, res, next) => {
+  try {
+    const r = await authClient.delete("/auth/sessions", { headers: forwardContextHeaders(req) });
+    res.status(r.status).json(r.data);
+  } catch (e: any) {
+    if (e.response) return res.status(e.response.status).json(e.response.data);
+    next(e);
+  }
+});
+
+// Notification preferences
+authBffRouter.get("/api/v1/notification-preferences", async (req, res, next) => {
+  try {
+    const r = await authClient.get("/notification-preferences", { headers: forwardContextHeaders(req) });
+    res.status(r.status).json(r.data);
+  } catch (e: any) {
+    if (e.response) return res.status(e.response.status).json(e.response.data);
+    next(e);
+  }
+});
+
+authBffRouter.put("/api/v1/notification-preferences", async (req, res, next) => {
+  try {
+    const r = await authClient.put("/notification-preferences", req.body, { headers: forwardContextHeaders(req) });
+    res.status(r.status).json(r.data);
+  } catch (e: any) {
+    if (e.response) return res.status(e.response.status).json(e.response.data);
+    next(e);
+  }
+});
 
 export default authBffRouter;

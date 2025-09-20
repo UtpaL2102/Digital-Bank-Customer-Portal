@@ -74,14 +74,18 @@ export default function ProtectedRoute({
     // Otherwise call /me to validate token and refresh status
     try {
       const response = await api.auth.me(token);
+      // Validate response data
+      if (!response) {
+        throw new Error('Empty response from server');
+      }
       // If the backend returns { user: ... } or top-level user, handle both
-      if (response?.user) {
+      if (response.user) {
         setUser(response.user);
-      } else if (response && (response.role || response.id)) {
+      } else if (response.role || response.id) {
         setUser(response);
       } else {
         console.warn('[ProtectedRoute] unexpected /me shape:', response);
-        setUser(null);
+        throw new Error('Invalid response format');
       }
     } catch (error) {
       console.error('validateAuth error', error);

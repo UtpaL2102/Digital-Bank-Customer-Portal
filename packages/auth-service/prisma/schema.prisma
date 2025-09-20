@@ -30,6 +30,7 @@ backupCodes UserMfaBackupCode[]
 kyc KycDetails?
 kycDocuments KycDocument[]
 notificationPrefs NotificationPrefs?
+sessions Session[]
 }
 
 model RefreshToken {
@@ -111,6 +112,21 @@ user_id String @db.Uuid
 action String
 details String?
 performed_at DateTime @default(now())
+}
+
+model Session {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  token String @unique
+  userAgent String
+  ipAddress String
+  lastActive DateTime @default(now())
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+  
+  user User @relation(fields: [userId], references: [id])
+  @@index([userId])
 }
 
 model Notification {
