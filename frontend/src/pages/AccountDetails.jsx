@@ -78,56 +78,88 @@ export default function AccountDetails() {
 
     const fetchTransactions = async () => {
       setLoading(true);
+      setError(null); // Clear any previous errors
+      
       try {
-        // Calculate date range
-        const now = new Date();
-        let days = 30;
-        if (filters.dateRange === "Last 60 days") days = 60;
-        if (filters.dateRange === "Last 90 days") days = 90;
-        const startDate = new Date(now);
-        startDate.setDate(now.getDate() - days + 1);
-
-        // Prepare API parameters
-        const params = {
+        // Create base URL with accountId and pagination
+        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+        const params = new URLSearchParams({
           accountId: accountDetails.id,
-          startDate: startDate.toISOString(),
-          endDate: now.toISOString(),
-          page: 1,     // Convert to number
-          pageSize: 20 // Convert to number
-        };
+          page: '1',
+          pageSize: '20'
+        });
 
+        // Add date range if selected
+        if (filters.dateRange !== "All") {
+          const now = new Date();
+          let days = 30;
+          if (filters.dateRange === "Last 60 days") days = 60;
+          if (filters.dateRange === "Last 90 days") days = 90;
+          const startDate = new Date(now);
+          startDate.setDate(now.getDate() - days + 1);
+          params.append('startDate', startDate.toISOString());
+          params.append('endDate', now.toISOString());
+        }
+        
+        // Add type and status filters if specified
         if (filters.type !== "All") {
-          params.type = filters.type.toLowerCase();
+          params.append('type', filters.type.toLowerCase());
         }
         if (filters.status !== "All") {
-          params.status = filters.status.toLowerCase();
+          params.append('status', filters.status.toLowerCase());
         }
 
-        const response = await api.transactions.getTransactions(params, token);
-        if (response?.items) {
-          const formattedTransactions = response.items.map(tx => ({
-            ...tx,
-            date: new Date(tx.date).toISOString(),
-            amount: typeof tx.amount === 'string' ? tx.amount : tx.amount.toString(),
-            description: tx.description || tx.desc || 'Unknown transaction',
-            reference: tx.reference || tx.ref || '-',
-            type: tx.type.charAt(0).toUpperCase() + tx.type.slice(1).toLowerCase(),
-            status: tx.status.charAt(0).toUpperCase() + tx.status.slice(1).toLowerCase()
-          }));
-          setTransactions(formattedTransactions);
-        } else {
-          setTransactions([]);
+        // Fetch transactions
+        const apiUrl = `${baseUrl}/api/v1/transactions?${params.toString()}`;
+        console.log('Fetching transactions from:', apiUrl);
+
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
         }
+
+        const data = await response.json();
+        console.log('Transactions response:', data);
+
+        if (!data || !data.transactions) {
+          console.warn('No transactions data received');
+          setTransactions([]);
+          return;
+        }
+
+        // Format transactions
+        const formattedTransactions = data.transactions.map(tx => ({
+          id: tx.id,
+          date: tx.created_at,
+          description: tx.description || 'Unknown transaction',
+          type: tx.type === 'deposit' ? 'Credit' : 'Debit',
+          status: tx.status.charAt(0).toUpperCase() + tx.status.slice(1).toLowerCase(),
+          reference: tx.reference || '-',
+          amount: tx.type === 'deposit' ? 
+            `+${parseFloat(tx.amount).toFixed(2)}` : 
+            `-${parseFloat(tx.amount).toFixed(2)}`
+        }));
+
+        setTransactions(formattedTransactions);
       } catch (err) {
-        setError(err.message || "Failed to fetch transactions");
         console.error('Failed to fetch transactions:', err);
+        setError(err.message || 'Failed to fetch transactions');
+        setTransactions([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchTransactions();
-  }, [filters, accountDetails]);
+  }, [filters.dateRange, filters.type, filters.status, accountDetails?.id]);
 
   const handleFilterChange = (field, value) => {
     setFilters(prev => ({

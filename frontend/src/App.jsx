@@ -41,6 +41,7 @@ import WithNavbar from "./components/WithNavbar";
 
 // Wrap all components that need the navbar with WithNavbar HOC
 const WrappedComponents = {
+  Dashboard: WithNavbar(Dashboard),
   AccountDetails: WithNavbar(AccountDetails),
   TransferStep1: WithNavbar(TransferStep1),
   TransferDetails: WithNavbar(TransferDetails),
@@ -105,7 +106,7 @@ export default function App() {
         {/* Protected routes - require authentication and KYC verification */}
         <Route path="/dashboard" element={
           <ProtectedRoute>
-            <Dashboard />
+            <WrappedComponents.Dashboard />
           </ProtectedRoute>
         } />
         <Route path="/minimal-dashboard" element={

@@ -17,6 +17,45 @@ const API_ERROR_TYPES = {
 };
 
 /**
+ * Handles HTTP errors with detailed error messages
+ * @param {Response} response - The fetch Response object
+ * @returns {Promise<Object>} - Resolves with parsed response data or rejects with error
+ */
+export const handleHttpError = async (response) => {
+  try {
+    const errorData = await response.text();
+    let parsed;
+    try {
+      parsed = JSON.parse(errorData);
+    } catch (e) {
+      parsed = { message: errorData };
+    }
+
+    const error = new Error(
+      parsed.error?.message || 
+      parsed.message || 
+      `HTTP ${response.status}`
+    );
+    error.status = response.status;
+    error.data = parsed;
+    
+    if (response.status === 401 || response.status === 403) {
+      error.type = API_ERROR_TYPES.AUTH;
+    } else if (response.status === 400) {
+      error.type = API_ERROR_TYPES.VALIDATION;
+    } else if (response.status === 404) {
+      error.type = API_ERROR_TYPES.NOT_FOUND;
+    } else {
+      error.type = API_ERROR_TYPES.SERVER;
+    }
+
+    throw error;
+  } catch (e) {
+    throw e.type ? e : new Error(`HTTP ${response.status}`);
+  }
+};
+
+/**
  * Format currency amount consistently across the application
  * @param {number} amount - The amount to format
  * @param {string} currency - The currency code (default: 'INR')
