@@ -163,9 +163,14 @@ export default function App() {
             <WrappedComponents.AddBeneficiary />
           </ProtectedRoute>
         } />
-        <Route path="/notifications" element={
+        <Route path="/notifications/preferences" element={
           <ProtectedRoute>
             <WrappedComponents.NotificationPreferences />
+          </ProtectedRoute>
+        } />
+        <Route path="/notifications" element={
+          <ProtectedRoute>
+            <WrappedComponents.NotificationsPage />
           </ProtectedRoute>
         } />
         <Route path="/profile-security" element={

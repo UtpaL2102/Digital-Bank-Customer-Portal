@@ -59,7 +59,7 @@ export default function ApplyForLoanPage() {
 
             {/* Amount */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Loan Amount (USD)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Loan Amount (₹)</label>
               <input
                 type="number"
                 name="amount"
@@ -87,7 +87,7 @@ export default function ApplyForLoanPage() {
 
             {/* Income */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Monthly Income (USD)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Monthly Income (₹)</label>
               <input
                 type="number"
                 name="income"

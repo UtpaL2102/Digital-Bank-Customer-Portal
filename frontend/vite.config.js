@@ -1,10 +1,13 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      // This is needed for the refresh runtime
+      jsxRuntime: 'classic',
+    }),
     tailwindcss(),
   ],
   server: {

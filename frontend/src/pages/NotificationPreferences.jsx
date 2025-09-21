@@ -11,7 +11,7 @@ export default function NotificationPreferences() {
     transactions_enabled: true,
     low_balance_enabled: true,
     security_enabled: true,
-    low_balance_threshold: 100.00
+    low_balance_threshold: 10000.00 // ₹10,000 default threshold
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);

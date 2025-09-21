@@ -5,7 +5,9 @@ export const storeAuthTokens = (accessToken, refreshToken) => {
 };
 
 export const getAuthToken = () => {
-  return sessionStorage.getItem('access_token');
+  const token = sessionStorage.getItem('access_token');
+  console.log('Getting auth token:', token ? 'Token present' : 'Token missing');
+  return token;
 };
 
 export const getRefreshToken = () => {

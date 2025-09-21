@@ -381,6 +381,39 @@ type: object
 properties:
 items: { type: array, items: { $ref: "#/components/schemas/Account" } }
 total: { type: integer }
+
+/accounts/search:
+get:
+summary: Search for bank accounts by account number
+parameters:
+- name: term
+in: query
+required: true
+schema:
+type: string
+minLength: 4
+description: Search term (minimum 4 characters)
+responses:
+"200":
+description: OK
+content:
+application/json:
+schema:
+type: object
+properties:
+accounts:
+type: array
+items:
+type: object
+properties:
+id: { type: string, format: uuid }
+account_number: { type: string }
+account_type: { type: string }
+branch:
+type: object
+properties:
+name: { type: string }
+code: { type: string }
 /accounts/{id}:
 get:
 summary: Account detail

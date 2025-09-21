@@ -73,20 +73,22 @@ export default function ProtectedRoute({
 
     // Otherwise call /me to validate token and refresh status
     try {
-      const response = await api.auth.me(token);
-      // Validate response data
-      if (!response) {
-        throw new Error('Empty response from server');
+      if (!token || token === 'undefined' || token === 'null') {
+        console.warn('[ProtectedRoute] Invalid token found');
+        clearAuthTokens();
+        setUser(null);
+        return;
       }
-      // If the backend returns { user: ... } or top-level user, handle both
-      if (response.user) {
-        setUser(response.user);
-      } else if (response.role || response.id) {
-        setUser(response);
-      } else {
-        console.warn('[ProtectedRoute] unexpected /me shape:', response);
-        throw new Error('Invalid response format');
+
+      const user = await api.auth.me(token);
+      if (!user || (!user.role && !user.id)) {
+        console.warn('[ProtectedRoute] Invalid user data:', user);
+        throw new Error('Invalid user data received');
       }
+      
+      // Store validated user data
+      sessionStorage.setItem('user', JSON.stringify(user));
+      setUser(user);
     } catch (error) {
       console.error('validateAuth error', error);
       

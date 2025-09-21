@@ -3,18 +3,44 @@ import { Request, Response } from "express";
 import { prisma } from "../db/prismaClient";
 
 function fmtLoan(l: any) {
-  return {
+  // Handle potential null/undefined loan object
+  if (!l) return null;
+
+  const formatted: any = {
     id: l.id,
     user_id: l.user_id,
-    account_id: l.account_id,
-    branch_id: l.branch_id,
+    account_id: l.account?.id || l.account_id,
+    branch_id: l.branch?.id || l.branch_id,
     amount: l.amount?.toString?.() ?? l.amount,
     interest_rate: l.interest_rate?.toString?.() ?? l.interest_rate,
     start_date: l.start_date?.toISOString?.() ?? l.start_date,
     end_date: l.end_date?.toISOString?.() ?? l.end_date,
-    status: l.status,
+    status: l.status || 'active',  // Default to active if not set
     created_at: l.created_at?.toISOString?.() ?? l.created_at,
   };
+
+  // Add account details if available
+  if (l.account) {
+    formatted.account = {
+      id: l.account.id,
+      account_number: l.account.account_number,
+      type: l.account.type,
+    };
+    console.log("Account details found:", formatted.account);
+  }
+
+  // Add branch details if available
+  if (l.branch) {
+    formatted.branch = {
+      id: l.branch.id,
+      name: l.branch.name,
+      code: l.branch.code,
+    };
+    console.log("Branch details found:", formatted.branch);
+  }
+
+  console.log("Formatting loan:", l.id, "Account:", !!l.account, "Branch:", !!l.branch);
+  return formatted;
 }
 function generateAmortizationSchedule(principal: number, annualRatePct: number, startDate: Date, months: number) {
   const monthlyRate = (annualRatePct / 100) / 12;
@@ -54,24 +80,36 @@ export const listLoans = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.id;
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
+    
+    console.log("Auth context:", {
+      userId,
+      headers: req.headers,
+      user: (req as any).user
+    });
 
+    // First check if the loan exists directly
+    const allLoans = await prisma.loan.findMany({});
+    console.log("All loans in system:", allLoans);
+
+    // Then try with the user filter
     const loans = await prisma.loan.findMany({
       where: { user_id: userId },
       orderBy: { created_at: "desc" },
-      select: {
-        id: true,
-        amount: true,
-        interest_rate: true,
-        start_date: true,
-        end_date: true,
-        status: true,
-        branch_id: true,
+      include: {
+        account: true,
+        branch: true,
       },
     });
 
-    const formatted = loans.map(fmtLoan);
-
-    return res.json({ loans: loans.map(fmtLoan) });
+    console.log("Found loans:", JSON.stringify(loans, null, 2));
+    
+    return res.json({
+      loans: loans.map(loan => {
+        const formatted = fmtLoan(loan);
+        console.log("Formatted loan:", JSON.stringify(formatted, null, 2));
+        return formatted;
+      })
+    });
   } catch (err) {
     console.error("listLoans error:", err);
     return res.status(500).json({ error: "Failed to retrieve loans" });
