@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "module": "NodeNext",
+    "types": ["reflect-metadata", "node", "express"],
+    "declaration": true,
+    "composite": true,
+    "paths": {
+      "@digital-bank/common": ["../common/src"],
+      "@digital-bank/common/*": ["../common/src/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "references": [
+    { "path": "../common" }
+  ],
+  "exclude": ["node_modules", "dist"]
+}
