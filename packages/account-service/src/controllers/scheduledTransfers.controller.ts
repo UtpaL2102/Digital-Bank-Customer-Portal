@@ -99,6 +99,11 @@ export const cancelScheduled = async (req: Request, res: Response) => {
   if (!s) return res.status(404).json({ error: "Not found" });
   if (s.user_id !== userId) return res.status(403).json({ error: "Forbidden" });
 
+  // Return existing entity if already cancelled (idempotent)
+  if (s.status === "cancelled") {
+    return res.json({ scheduled: s });
+  }
+
   const updated = await prisma.scheduledTransfer.update({ where: { id }, data: { status: "cancelled" }});
   return res.json({ scheduled: updated });
 };

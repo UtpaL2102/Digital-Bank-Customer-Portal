@@ -150,6 +150,18 @@ export default function Dashboard() {
             <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
               <span className="font-medium text-gray-600 dark:text-gray-200">A</span>
             </div>
+
+            {/* Logout Button */}
+            <button
+              onClick={() => {
+                sessionStorage.clear();
+                navigate('/login');
+              }}
+              className="p-2 hover:bg-gray-100 rounded-full"
+              title="Logout"
+            >
+              <span className="material-icons text-gray-600">logout</span>
+            </button>
           </div>
         </header>
 
@@ -163,7 +175,7 @@ export default function Dashboard() {
                   Checking **** 1234
                 </p>
                 <p className="text-3xl font-semibold text-gray-800 dark:text-gray-100">
-                  $8,420.12
+                  ₹8,42,012
                 </p>
               </div>
               <div className="p-3 bg-blue-50 dark:bg-blue-800 rounded-full">
@@ -188,7 +200,7 @@ export default function Dashboard() {
                   Savings **** 9910
                 </p>
                 <p className="text-3xl font-semibold text-gray-800 dark:text-gray-100">
-                  $15,230.00
+                  ₹15,23,000
                 </p>
               </div>
               <div className="p-3 bg-green-50 dark:bg-green-800 rounded-full">
@@ -215,7 +227,7 @@ export default function Dashboard() {
                   Credit **** 4488
                 </p>
                 <p className="text-3xl font-semibold text-red-500 dark:text-red-400">
-                  $-420.55
+                  -₹42,055
                 </p>
               </div>
               <div className="p-3 bg-red-50 dark:bg-red-800 rounded-full">
@@ -240,8 +252,8 @@ export default function Dashboard() {
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-sm text-gray-500 dark:text-gray-300 mb-1 font-medium">
-                  <span>Daily: $5,000</span>
-                  <span>Used $1,250</span>
+                  <span>Daily: ₹5,00,000</span>
+                  <span>Used ₹1,25,000</span>
                 </div>
                 <div className="bg-gray-200 dark:bg-gray-600 rounded-full h-2.5">
                   <div
@@ -252,9 +264,9 @@ export default function Dashboard() {
               </div>
               <div>
                 <div className="flex justify-between text-sm text-gray-500 dark:text-gray-300 mb-1 font-medium">
-                  <span>Monthly: $25,000</span>
+                  <span>Monthly: ₹25,00,000</span>
                   <span className="text-orange-500 dark:text-orange-400 font-semibold">
-                    Used $8,900
+                    Used ₹8,90,000
                   </span>
                 </div>
                 <div className="bg-gray-200 dark:bg-gray-600 rounded-full h-2.5">
@@ -307,7 +319,7 @@ export default function Dashboard() {
                       Checking
                     </td>
                     <td className="py-4 px-4 text-sm text-gray-700 dark:text-gray-100 font-semibold text-right">
-                      -$42.16
+                      -₹4,216
                     </td>
                   </tr>
 
@@ -327,7 +339,7 @@ export default function Dashboard() {
                       Checking
                     </td>
                     <td className="py-4 px-4 text-sm text-green-600 dark:text-green-400 font-semibold text-right">
-                      +$3,200.00
+                      +₹3,20,000
                     </td>
                   </tr>
 
@@ -347,7 +359,7 @@ export default function Dashboard() {
                       Savings
                     </td>
                     <td className="py-4 px-4 text-sm text-gray-700 dark:text-gray-100 font-semibold text-right">
-                      -$500.00
+                      -₹50,000
                     </td>
                   </tr>
 
@@ -367,7 +379,7 @@ export default function Dashboard() {
                       Checking
                     </td>
                     <td className="py-4 px-4 text-sm text-gray-700 dark:text-gray-100 font-semibold text-right">
-                      -$88.12
+                      -₹8,812
                     </td>
                   </tr>
 
@@ -387,7 +399,7 @@ export default function Dashboard() {
                       Checking
                     </td>
                     <td className="py-4 px-4 text-sm text-gray-700 dark:text-gray-100 font-semibold text-right">
-                      -$60.00
+                      -₹6,000
                     </td>
                   </tr>
                 </tbody>

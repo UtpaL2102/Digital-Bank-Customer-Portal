@@ -5,12 +5,25 @@ import { forwardContextHeaders } from "../middlewares/auth.forwardContext.js";
 export const accountsBffRouter = Router();
 
 accountsBffRouter.get("/api/v1/accounts", async (req, res, next) => {
-try {
+  try {
     // console.log('[BFF] forwarding request to account-service', { path: '/accounts', user: (req as any).user?.id });
+    const r = await accountClient.get("/accounts", { headers: forwardContextHeaders(req) });
+    res.status(r.status).json(r.data);
+  } catch (e: any) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
+});
 
-const r = await accountClient.get("/accounts", { headers: forwardContextHeaders(req) });
-res.status(r.status).json(r.data);
-} catch (e: any) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
+accountsBffRouter.get("/api/v1/accounts/search", async (req, res, next) => {
+  try {
+    console.log('[BFF] forwarding search request', { query: req.query });
+    const r = await accountClient.get("/accounts/search", { 
+      headers: forwardContextHeaders(req),
+      params: req.query // Forward the search term
+    });
+    res.status(r.status).json(r.data);
+  } catch (e: any) { 
+    if (e.response) res.status(e.response.status).json(e.response.data); 
+    else next(e); 
+  }
 });
 
 accountsBffRouter.get("/api/v1/accounts/summary", async (req, res, next) => {

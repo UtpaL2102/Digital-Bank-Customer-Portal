@@ -20,6 +20,8 @@ import beneficiariesBff from "./routes/beneficiaries.bff.routes.js";
 import limitsBff from "./routes/limits.bff.routes.js";
 import loansBff from "./routes/loans.bff.routes.js";
 import adminBffRoutes from "./routes/admin.bff.routes.js";
+import transfersBffRouter from "./routes/transfers.bff.routes.js";
+import scheduledTransfersBffRouter from "./routes/scheduledTransfers.bff.routes.js";
 import { requireAdminBff } from "./middlewares/admin.auth.middleware.js";
 
 dotenv.config();
@@ -77,8 +79,9 @@ app.use(transactionsBffRouter);
 
 app.use(statementsBffRouter);
 
-// app.use('/api/v1/accounts', ...)
-// app.use('/api/v1/transfers', ...)
+// Banking endpoints for transfers (require verified KYC)
+app.use(requireKycVerified, transfersBffRouter);
+app.use(requireKycVerified, scheduledTransfersBffRouter);
 
 // app.use('/api/v1/limits', ...)
 app.use(beneficiariesBff);

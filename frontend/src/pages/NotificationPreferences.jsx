@@ -11,7 +11,7 @@ export default function NotificationPreferences() {
     transactions_enabled: true,
     low_balance_enabled: true,
     security_enabled: true,
-    low_balance_threshold: 100.00
+    low_balance_threshold: 10000.00 // ₹10,000 default threshold
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -68,14 +68,14 @@ export default function NotificationPreferences() {
 
   return (
     <div className="antialiased min-h-screen">
-      <header className="bg-white border-b border-gray-200">
+      {/* <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-start items-center h-16">
             <span className="text-xl font-bold text-gray-800">DigitalSecure</span>
           </div>
         </div>
         <div className="h-1 bg-gradient-to-r from-[#001BB7] to-[#0046FF]"></div>
-      </header>
+      </header> */}
 
       <main className="py-10 sm:py-12">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
