@@ -1,16 +1,21 @@
+
 import { Request as CustomRequest, Response, NextFunction } from "express";
 
 export interface CustomRequestWithRequestId extends CustomRequest {
   requestId?: string;
 }
 
+
 export class AppError extends Error {
   code: string;
+  status: number;
   details?: any;
   requestId?: string;
-  constructor(code: string, message: string, details?: any, requestId?: string) {
+
+  constructor(code: string, message: string, status = 500, details?: any, requestId?: string) {
     super(message);
     this.code = code;
+    this.status = status;
     this.details = details;
     this.requestId = requestId;
   }
@@ -28,6 +33,7 @@ export function errorHandler(
       code: err.code || "INTERNAL_ERROR",
       message: err.message,
       details: err.details,
+
       requestId,
     },
   });
