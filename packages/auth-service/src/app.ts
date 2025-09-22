@@ -9,6 +9,7 @@ import kycRouter from "./routes/kyc.routes";
 import adminRouter from "./routes/admin.routes.js";
 import notificationRouter from "./routes/notification.routes.js";
 import sessionRouter from "./routes/session.routes";
+import chatRouter from "./routes/chat.routes";
 
 dotenv.config({ override: true });
 const app = express();
@@ -21,6 +22,7 @@ app.use(authRouter);
 app.use(kycRouter);
 app.use(notificationRouter);
 app.use(sessionRouter);
+app.use(chatRouter);
 // Multer error mapper
 app.use((err: any, _req: any, res: any, _next: any) => {
 if (err?.message === "LIMIT_FILE_SIZE") {

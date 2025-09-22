@@ -1,144 +1,279 @@
-import React from "react";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { api } from '../lib/api';
+import { getAuthToken } from '../lib/authHelpers';
+import { 
+  Alert, Button, Spinner, Card, Table, Form, 
+  InputGroup, Row, Col 
+} from 'react-bootstrap';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
 
-export default function ChatHistoryPage() {
-  const chatData = [
-    {
-      date: "2025-08-10 14:12",
-      question: "Increase daily limit?",
-      answer: "Go to Limits → Request Increase...",
-      confidence: 0.92,
-      reference: "KYC-2025-142",
-    },
-    {
-      date: "2025-08-09 10:05",
-      question: "Reset debit PIN",
-      answer: "Open Cards → Reset PIN...",
-      confidence: 0.95,
-      reference: "FAQ-34",
-    },
-    {
-      date: "2025-08-08 18:30",
-      question: "Dispute a transaction",
-      answer: "I can't process that request...",
-      confidence: 0.45,
-      reference: "ESC-2025-09",
-      highlight: true,
-    },
-    {
-      date: "2025-08-07 11:21",
-      question: "How to get a new card?",
-      answer: "Go to Cards → Order new card...",
-      confidence: 0.98,
-      reference: "FAQ-12",
-    },
-    {
-      date: "2025-08-06 09:00",
-      question: "Check account balance",
-      answer: "Your current balance is...",
-      confidence: 0.99,
-      reference: "API-Balance",
-    },
-  ];
+const ChatHistoryPage = () => {
+  const [chatHistory, setChatHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [confidenceThreshold, setConfidenceThreshold] = useState('');
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    hasMore: true
+  });
 
-  const getConfidenceColor = (value) => {
-    if (value < 0.6) return "low";
-    if (value < 0.8) return "medium";
-    return "high";
+  const navigate = useNavigate();
+  const token = getAuthToken();
+
+  // Initial data fetch
+  useEffect(() => {
+    fetchChatHistory();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Refetch when date filters change
+  useEffect(() => {
+    if (startDate || endDate) {
+      fetchChatHistory(false);
+    }
+  }, [startDate, endDate]);
+
+  const fetchChatHistory = async (isLoadMore = false) => {
+    const loadingSetter = isLoadMore ? setLoadingMore : setLoading;
+    try {
+      loadingSetter(true);
+      setError(null);
+
+      const params = {
+        page: isLoadMore ? pagination.page + 1 : 1,
+        limit: pagination.limit
+      };
+
+      if (startDate) params.startDate = startDate.toISOString();
+      if (endDate) params.endDate = endDate.toISOString();
+
+      const response = await api.chatbot.getHistory(params, token);
+      
+      setChatHistory(prev => 
+        isLoadMore ? [...prev, ...response.data] : response.data
+      );
+      
+      setPagination(prev => ({
+        ...prev,
+        page: isLoadMore ? prev.page + 1 : 1,
+        hasMore: response.hasMore
+      }));
+    } catch (err) {
+      if (err.type === 'AUTH_ERROR') {
+        navigate('/login');
+      } else {
+        setError('Failed to fetch chat history. Please try again.');
+      }
+    } finally {
+      loadingSetter(false);
+    }
   };
 
-  return (
-    <div className="bg-[#F5F7FA] min-h-screen p-4 sm:p-6 lg:p-8">
-      {/* Header */}
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Chat history</h1>
-      </header>
+  // Filter chat history based on search term and confidence
+  const filteredHistory = chatHistory.filter(session => {
+    const matchesSearch = searchTerm === '' || 
+      session.messages.some(msg => 
+        msg.content.toLowerCase().includes(searchTerm.toLowerCase())
+      );
 
-      {/* Card */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        {/* Filters */}
-        <div className="flex flex-col md:flex-row md:space-x-4 mb-6">
-          <div className="flex-grow mb-4 md:mb-0">
-            <input
-              placeholder="Search question"
-              type="text"
-              className="w-full bg-white border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-gray-400"
-            />
-          </div>
-          <div className="flex-shrink-0 mb-4 md:mb-0">
-            <input
-              placeholder="Confidence ≥ 0.8"
-              type="text"
-              className="w-full bg-white border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-gray-400"
-            />
-          </div>
-          <div className="flex-shrink-0">
-            <input
-              placeholder="Date: Last 30 days"
-              type="text"
-              className="w-full bg-white border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-gray-400"
-            />
-          </div>
-        </div>
+    const matchesConfidence = confidenceThreshold === '' ||
+      session.messages.some(msg => 
+        msg.confidence_score >= parseFloat(confidenceThreshold)
+      );
 
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="text-gray-700 font-semibold text-sm border-b border-gray-200">
-                <th className="p-4">Date</th>
-                <th className="p-4">Question</th>
-                <th className="p-4">Answer (snippet)</th>
-                <th className="p-4">Confidence</th>
-                <th className="p-4">Reference</th>
-              </tr>
-            </thead>
-            <tbody>
-              {chatData.map((chat, index) => (
-                <tr
-                  key={index}
-                  className={`border-b border-gray-200 hover:bg-gray-50 ${
-                    chat.highlight ? "bg-orange-50" : ""
-                  }`}
-                >
-                  <td className="p-4 text-sm text-gray-500">{chat.date}</td>
-                  <td className="p-4 font-semibold text-gray-800">
-                    {chat.question}
-                  </td>
-                  <td className="p-4 text-gray-600">{chat.answer}</td>
-                  <td className="p-4 flex items-center text-sm">
-                    <span
-                      className={`h-2 w-2 rounded-full mr-2 ${
-                        getConfidenceColor(chat.confidence) === "low"
-                          ? "bg-orange-500"
-                          : getConfidenceColor(chat.confidence) === "medium"
-                          ? "bg-yellow-400"
-                          : "bg-green-500"
-                      }`}
-                    ></span>
-                    <span
-                      className={`${
-                        getConfidenceColor(chat.confidence) === "low"
-                          ? "text-orange-500 font-semibold"
-                          : "text-green-600"
-                      }`}
-                    >
-                      {chat.confidence.toFixed(2)}
-                    </span>
-                  </td>
-                  <td className="p-4 text-sm text-gray-500">{chat.reference}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+    return matchesSearch && matchesConfidence;
+  });
 
-        {/* Load More Button */}
-        <div className="flex justify-end mt-6">
-          <button className="bg-gradient-to-r from-[#001BB7] to-[#0046FF] text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-px transition duration-300">
-            Load More
-          </button>
-        </div>
+  const handleConfidenceChange = (e) => {
+    const value = e.target.value;
+    if (value === '' || (parseFloat(value) >= 0 && parseFloat(value) <= 1)) {
+      setConfidenceThreshold(value);
+    }
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setConfidenceThreshold('');
+    setStartDate(null);
+    setEndDate(null);
+    fetchChatHistory();
+  };
+
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '400px' }}>
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
       </div>
+    );
+  }
+
+  return (
+    <div className="container mt-4">
+      <Card>
+        <Card.Header>
+          <h4>Chat History</h4>
+        </Card.Header>
+        <Card.Body>
+          {error && (
+            <Alert variant="danger" onClose={() => setError(null)} dismissible>
+              {error}
+            </Alert>
+          )}
+
+          <Row className="mb-4">
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Search Messages</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Search in messages..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={2}>
+              <Form.Group>
+                <Form.Label>Min. Confidence</Form.Label>
+                <Form.Control
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="1"
+                  placeholder="0.0-1.0"
+                  value={confidenceThreshold}
+                  onChange={handleConfidenceChange}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={3}>
+              <Form.Group>
+                <Form.Label>Start Date</Form.Label>
+                <DatePicker
+                  selected={startDate}
+                  onChange={setStartDate}
+                  selectsStart
+                  startDate={startDate}
+                  endDate={endDate}
+                  maxDate={new Date()}
+                  className="form-control"
+                  placeholderText="Select start date"
+                />
+              </Form.Group>
+            </Col>
+            <Col md={3}>
+              <Form.Group>
+                <Form.Label>End Date</Form.Label>
+                <DatePicker
+                  selected={endDate}
+                  onChange={setEndDate}
+                  selectsEnd
+                  startDate={startDate}
+                  endDate={endDate}
+                  minDate={startDate}
+                  maxDate={new Date()}
+                  className="form-control"
+                  placeholderText="Select end date"
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <div className="mb-3">
+            <Button variant="outline-secondary" onClick={clearFilters}>
+              Clear Filters
+            </Button>
+            <span className="ms-3">
+              Showing {filteredHistory.length} results
+            </span>
+          </div>
+
+          {filteredHistory.length === 0 ? (
+            <Alert variant="info">
+              No chat history found matching your criteria.
+            </Alert>
+          ) : (
+            <Table responsive hover>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Question</th>
+                  <th>Answer</th>
+                  <th>Confidence</th>
+                  <th>Sources</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredHistory.map((session) => {
+                  // Group messages into Q&A pairs
+                  const messagePairs = [];
+                  for (let i = 0; i < session.messages.length - 1; i++) {
+                    const current = session.messages[i];
+                    const next = session.messages[i + 1];
+                    if (current.role === 'user' && next.role === 'assistant') {
+                      messagePairs.push({ question: current, answer: next });
+                      i++; // Skip the next message since we've used it
+                    }
+                  }
+
+                  return messagePairs.map(({ question, answer }, pairIndex) => (
+                    <tr key={`${session.id}-${pairIndex}`}>
+                      <td>{new Date(answer.timestamp).toLocaleDateString()}</td>
+                      <td>{question.content}</td>
+                      <td>{answer.content}</td>
+                      <td>
+                        <span className={`badge ${
+                          answer.confidence_score >= 0.8 ? 'bg-success' :
+                          answer.confidence_score >= 0.6 ? 'bg-warning' : 'bg-danger'
+                        }`}>
+                          {Math.round(answer.confidence_score * 100)}%
+                        </span>
+                      </td>
+                      <td>
+                        <small>
+                          {answer.metadata?.sources?.join(', ') || 'N/A'}
+                        </small>
+                      </td>
+                    </tr>
+                  ));
+                })}
+              </tbody>
+            </Table>
+          )}
+
+          {pagination.hasMore && (
+            <div className="text-center mt-3">
+              <Button
+                variant="primary"
+                onClick={() => fetchChatHistory(true)}
+                disabled={loadingMore}
+              >
+                {loadingMore ? (
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  'Load More'
+                )}
+              </Button>
+            </div>
+          )}
+        </Card.Body>
+      </Card>
     </div>
   );
-}
+};
+
+export default ChatHistoryPage;

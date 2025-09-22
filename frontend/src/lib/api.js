@@ -976,6 +976,136 @@ export const limits = {
   }
 };
 
+// Chatbot API functions with enhanced validation and error handling
+export const chatbot = {
+  /**
+   * Send a message to the chatbot
+   * @param {Object} data - Message data
+   * @param {string} data.message - The message content to send
+   * @param {string} token - Authentication token
+   * @returns {Promise<Object>} Response with user message, bot reply and sources
+   */
+  sendMessage: (data, token) => {
+    validateParams(data, {
+      message: { type: 'string', required: true }
+    });
+
+    // Trim message and validate non-empty
+    const trimmedMessage = data.message.trim();
+    if (!trimmedMessage) {
+      const error = new Error('Message cannot be empty');
+      error.type = API_ERROR_TYPES.VALIDATION;
+      throw error;
+    }
+
+    // Send request with trimmed message
+    const requestData = { ...data, message: trimmedMessage };
+    return fetch(
+      `${BASE_URL}/api/v1/chat`,
+      createRequestOptions('POST', requestData, token)
+    ).then(handleResponse);
+  },
+
+  /**
+   * Create a new chat session
+   * @param {Object} data - Session data
+   * @param {string} data.title - Optional title for the session
+   * @param {string} token - Authentication token
+   * @returns {Promise<Object>} Created session details
+   */
+  createSession: (data = {}, token) => {
+    return fetch(
+      `${BASE_URL}/api/v1/chat/sessions`,
+      createRequestOptions('POST', data, token)
+    ).then(handleResponse);
+  },
+
+  /**
+   * Get all chat sessions for the user
+   * @param {string} token - Authentication token
+   * @returns {Promise<Array>} List of chat sessions
+   */
+  getSessions: (token) => {
+    return fetch(
+      `${BASE_URL}/api/v1/chat/sessions`,
+      createRequestOptions('GET', null, token)
+    ).then(handleResponse);
+  },
+
+  /**
+   * Get a specific chat session with its messages
+   * @param {string} sessionId - ID of the session to fetch
+   * @param {string} token - Authentication token
+   * @returns {Promise<Object>} Session details with messages
+   */
+  getSession: (sessionId, token) => {
+    if (!sessionId) {
+      const error = new Error('Session ID is required');
+      error.type = API_ERROR_TYPES.VALIDATION;
+      throw error;
+    }
+
+    return fetch(
+      `${BASE_URL}/api/v1/chat/sessions/${sessionId}`,
+      createRequestOptions('GET', null, token)
+    ).then(handleResponse);
+  },
+
+  /**
+   * Save a message to a chat session
+   * @param {string} sessionId - ID of the session to save the message to
+   * @param {Object} data - Message data
+   * @param {string} data.content - Message content
+   * @param {string} data.role - Message role ('user' or 'assistant')
+   * @param {number} [data.confidence_score] - Optional confidence score
+   * @param {Object} [data.metadata] - Optional metadata
+   * @param {string} token - Authentication token
+   * @returns {Promise<Object>} Saved message details
+   */
+  saveMessage: (sessionId, data, token) => {
+    validateParams({sessionId, ...data}, {
+      sessionId: { type: 'string', required: true },
+      content: { type: 'string', required: true },
+      role: { type: 'string', required: true }
+    });
+
+    // Validate that role is either 'user' or 'assistant'
+    if (!['user', 'assistant'].includes(data.role)) {
+      const error = new Error('Role must be either "user" or "assistant"');
+      error.type = API_ERROR_TYPES.VALIDATION;
+      throw error;
+    }
+
+    return fetch(
+      `${BASE_URL}/api/v1/chat/sessions/${sessionId}/messages`,
+      createRequestOptions('POST', data, token)
+    ).then(handleResponse);
+  },
+
+  /**
+   * Get paginated chat history
+   * @param {Object} params - Query parameters
+   * @param {number} [params.page=1] - Page number
+   * @param {number} [params.limit=10] - Items per page
+   * @param {string} [params.startDate] - Start date filter
+   * @param {string} [params.endDate] - End date filter
+   * @param {string} token - Authentication token
+   * @returns {Promise<Object>} Paginated chat history
+   */
+  getHistory: (params = {}, token) => {
+    const queryParams = new URLSearchParams();
+    if (params.page) queryParams.append('page', params.page);
+    if (params.limit) queryParams.append('limit', params.limit);
+    if (params.startDate) queryParams.append('startDate', params.startDate);
+    if (params.endDate) queryParams.append('endDate', params.endDate);
+
+    return fetch(
+      `${BASE_URL}/api/v1/chat/history${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      createRequestOptions('GET', null, token)
+    ).then(handleResponse);
+  }
+};
+
 // Export all API functions
 export const api = {
   auth,
@@ -990,4 +1120,5 @@ export const api = {
   admin,
   transactions,
   limits,
+  chatbot, // Add chatbot to the main api export
 };

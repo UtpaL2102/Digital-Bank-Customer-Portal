@@ -16,17 +16,36 @@ else:
 vectorizer = TfidfVectorizer()
 KB_EMBEDDINGS = vectorizer.fit_transform(KB_DOCS)
 
-def search_knowledgebase(query: str, top_k: int = 2) -> str:
+def search_knowledgebase(query: str, top_k: int = 2) -> dict:
     """
     Given a user query, return the top_k most relevant chunks from the knowledge base.
+    Returns a dictionary with text, similarity_score, and has_matches fields.
     """
     try:
         query_vec = vectorizer.transform([query])
         scores = cosine_similarity(query_vec, KB_EMBEDDINGS).flatten()
         top_indices = scores.argsort()[-top_k:][::-1]
-        results = [KB_DOCS[i] for i in top_indices if scores[i] > 0]
+        
+        # Get the highest score for confidence calculation
+        max_score = scores[top_indices[0]] if len(top_indices) > 0 else 0.0
+        
+        results = [KB_DOCS[i] for i in top_indices if scores[i] > 0.1]  # Minimum threshold
+        
         if not results:
-            return "No relevant information found in knowledge base."
-        return "\n".join(results)
+            return {
+                "text": "No relevant information found in knowledge base.",
+                "similarity_score": 0.3,
+                "has_matches": False
+            }
+        
+        return {
+            "text": "\n".join(results),
+            "similarity_score": min(max_score, 0.95),  # Cap at 95% to avoid overconfidence
+            "has_matches": True
+        }
     except Exception as e:
-        return f"Knowledge search failed: {e}"
+        return {
+            "text": f"Knowledge search failed: {e}",
+            "similarity_score": 0.3,
+            "has_matches": False
+        }

@@ -1,100 +1,232 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { api } from '../lib/api';
+import { getAuthToken } from '../lib/authHelpers';
+import { Alert, Button, Spinner, Card } from 'react-bootstrap';
 
-export default function ChatbotSupportPage() {
+const ChatbotSupportPage = () => {
+  const [messages, setMessages] = useState([]);
+  const [currentMessage, setCurrentMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentSession, setCurrentSession] = useState(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const [suggestions] = useState([
+    'How do I check my balance?',
+    'What are your transfer limits?',
+    'How do I reset my password?'
+  ]);
+
+  const messagesEndRef = useRef(null);
   const navigate = useNavigate();
+  const token = getAuthToken();
+
+  // Auto-scroll to bottom when new messages arrive
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Initialize chat session
+  useEffect(() => {
+    const initializeChat = async () => {
+      try {
+        const session = await api.chatbot.createSession({
+          title: 'Customer Support Chat'
+        }, token);
+        setCurrentSession(session);
+        setInitialLoading(false);
+      } catch (err) {
+        if (err.type === 'AUTH_ERROR') {
+          navigate('/login');
+        } else {
+          setError('Failed to initialize chat session. Please try again.');
+        }
+        setInitialLoading(false);
+      }
+    };
+
+    initializeChat();
+  }, [navigate, token]);
+
+  // Handle sending messages
+  const handleSendMessage = async (messageText = currentMessage) => {
+    if (!messageText.trim()) return;
+    
+    if (!currentSession?.id) {
+      setError("Chat session not ready. Please refresh.");
+      return;
+    }
+
+    const userMessage = {
+      content: messageText,
+      role: 'user',
+      timestamp: new Date().toISOString()
+    };
+
+    try {
+      setLoading(true);
+      setError(null);
+      setMessages(prev => [...prev, userMessage]);
+      setCurrentMessage('');
+      setIsTyping(true);
+
+      // Save user message to session
+      await api.chatbot.saveMessage(String(currentSession.id), userMessage, token);
+
+      // Get bot response
+      const response = await api.chatbot.sendMessage({ 
+        message: messageText.trim() 
+      }, token);
+
+      // Map API response fields according to contract
+      const { reply, confidence_score, sources } = response;
+      const botMessage = {
+        content: reply,
+        role: 'assistant',
+        confidence_score,
+        metadata: { sources },
+        timestamp: new Date().toISOString()
+      };
+
+      // Save bot message to session
+      await api.chatbot.saveMessage(String(currentSession.id), botMessage, token);
+      
+      setMessages(prev => [...prev, botMessage]);
+    } catch (err) {
+      if (err.type === 'AUTH_ERROR') {
+        navigate('/login');
+      } else {
+        setError('Failed to send message. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+      setIsTyping(false);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  if (initialLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '400px' }}>
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex items-center justify-center bg-gray-100 min-h-screen">
-      <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-lg flex flex-col h-[90vh]">
-        {/* Header */}
-        <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">Help & Chatbot</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Ask about debit cards, net banking, transfers, etc.
-            </p>
-          </div>
-          <button
-            onClick={() => navigate("/chat-history")}
-            className="bg-gradient-to-r from-[#001BB7] to-[#0046FF] text-white px-3 py-2 rounded-full text-sm font-medium shadow hover:shadow-lg transition"
-          >
-            View History
-          </button>
-        </div>
+    <div className="container mt-4">
+      <Card className="chat-container">
+        <Card.Header>
+          <h4>Digital Bank Support</h4>
+        </Card.Header>
+        <Card.Body>
+          {error && (
+            <Alert variant="danger" onClose={() => setError(null)} dismissible>
+              {error}
+            </Alert>
+          )}
 
-        {/* Chat Messages */}
-        <div className="flex-1 p-6 space-y-6 overflow-y-auto">
-          {/* Bot message */}
-          <div className="flex justify-start">
-            <div className="bg-gray-100 rounded-2xl rounded-bl-lg p-4 max-w-xs shadow-sm">
-              <p className="text-gray-800 text-sm">Hi! How can I help today?</p>
-              <p className="text-xs text-gray-400 mt-2">Bot • 2:14 PM</p>
-            </div>
+          <div className="messages-container" style={{ height: '400px', overflowY: 'auto' }}>
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`message ${msg.role === 'user' ? 'user-message' : 'bot-message'}`}
+              >
+                <div className="message-content">
+                  {msg.content}
+                  {msg.confidence_score && (
+                    <small className={`confidence-score ${
+                      msg.confidence_score >= 0.8 ? 'text-success' :
+                      msg.confidence_score >= 0.6 ? 'text-warning' : 'text-danger'
+                    }`}>
+                      Confidence: {Math.round(msg.confidence_score * 100)}%
+                    </small>
+                  )}
+                  <small className="timestamp">
+                    {new Date(msg.timestamp).toLocaleTimeString()}
+                  </small>
+                </div>
+                {msg.metadata?.sources && (
+                  <div className="sources">
+                    <small>Sources: {msg.metadata.sources.join(', ')}</small>
+                  </div>
+                )}
+              </div>
+            ))}
+            {isTyping && (
+              <div className="bot-message">
+                <div className="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
           </div>
 
-          {/* User message */}
-          <div className="flex justify-end">
-            <div className="bg-gradient-to-r from-[#001BB7] to-[#0046FF] text-white rounded-2xl rounded-br-lg p-4 max-w-xs shadow-md">
-              <p className="text-sm">How to increase daily limit?</p>
-              <p className="text-xs text-gray-200 mt-2 text-right">
-                You • 2:15 PM
-              </p>
-            </div>
+          <div className="suggestions mt-3">
+            {suggestions.map((suggestion, index) => (
+              <Button
+                key={index}
+                variant="outline-primary"
+                size="sm"
+                className="me-2 mb-2"
+                onClick={() => handleSendMessage(suggestion)}
+                disabled={loading || isTyping || !currentSession || error}
+              >
+                {suggestion}
+              </Button>
+            ))}
           </div>
 
-          {/* Bot response */}
-          <div className="flex justify-start">
-            <div className="bg-gray-100 rounded-2xl rounded-bl-lg p-4 max-w-xs shadow-sm">
-              <p className="text-gray-800 text-sm">
-                Go to Limits → Request Increase. We'll review in 1-2 days.
-              </p>
-              <p className="text-xs text-gray-400 mt-2">Confidence: 0.92</p>
-            </div>
-          </div>
-
-          {/* Suggestions */}
-          <div>
-            <p className="text-sm font-medium text-gray-600 mb-3">
-              Suggestions
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <button className="bg-gray-200 text-gray-700 text-sm font-medium py-2 px-4 rounded-full hover:shadow-md transition-shadow duration-300">
-                Reset debit PIN
-              </button>
-              <button className="bg-gray-200 text-gray-700 text-sm font-medium py-2 px-4 rounded-full hover:shadow-md transition-shadow duration-300">
-                Net banking activation
-              </button>
-              <button className="bg-gray-200 text-gray-700 text-sm font-medium py-2 px-4 rounded-full hover:shadow-md transition-shadow duration-300">
-                Low balance alerts
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer Input */}
-        <div className="p-6 border-t border-gray-200">
-          <div className="bg-white border border-gray-200 rounded-2xl p-4">
-            <h2 className="font-semibold text-gray-800">
-              Escalate to human support
-            </h2>
-            <p className="text-xs text-gray-500 mt-1">
-              We'll log your chats to chatbot_logs
-            </p>
-          </div>
-          <div className="mt-4 flex items-center bg-gray-100 rounded-full p-2">
-            <input
-              className="flex-1 bg-transparent text-sm text-gray-800 placeholder-gray-500 focus:outline-none px-4 py-2"
-              placeholder="Type your message..."
-              type="text"
+          <div className="input-container mt-3">
+            <textarea
+              className="form-control"
+              value={currentMessage}
+              onChange={(e) => setCurrentMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Type your message here..."
+              rows="3"
+              disabled={loading || isTyping || !currentSession || error}
             />
-            <button className="bg-gradient-to-r from-[#001BB7] to-[#0046FF] text-white rounded-full p-3 shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <span className="material-icons">send</span>
-            </button>
+            <Button
+              variant="primary"
+              className="send-button mt-2"
+              onClick={() => handleSendMessage()}
+              disabled={!currentMessage.trim() || loading || isTyping}
+            >
+              {loading ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              ) : (
+                'Send'
+              )}
+            </Button>
           </div>
-        </div>
-      </div>
+        </Card.Body>
+      </Card>
     </div>
   );
-}
+};
+
+export default ChatbotSupportPage;
 

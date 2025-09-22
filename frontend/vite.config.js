@@ -17,7 +17,6 @@ export default defineConfig({
         target: 'http://localhost:4000',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api/, '/api'),
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
             console.log('proxy error', err);
@@ -29,6 +28,12 @@ export default defineConfig({
             console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
           });
         },
+      },
+      '/api/v1/chat': {
+        target: 'http://localhost:5001',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api\/v1/, ''),
       }
     }
   },

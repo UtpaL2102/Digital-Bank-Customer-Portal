@@ -31,6 +31,7 @@ kyc KycDetails?
 kycDocuments KycDocument[]
 notificationPrefs NotificationPrefs?
 sessions Session[]
+chatSessions ChatSession[]
 }
 
 model RefreshToken {
@@ -166,4 +167,37 @@ model AdminApiKey {
   revoked     Boolean  @default(false)
 
   @@index([user_id])
+}
+
+model ChatSession {
+  id          String   @id @default(uuid()) @db.Uuid
+  user_id     String   @db.Uuid
+  title       String?
+  status      String   @default("active") // active | ended
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  ended_at    DateTime?
+
+  // Relations
+  user        User     @relation(fields: [user_id], references: [id])
+  messages    ChatMessage[]
+
+  @@index([user_id])
+  @@index([created_at])
+}
+
+model ChatMessage {
+  id              String   @id @default(uuid()) @db.Uuid
+  session_id      String   @db.Uuid
+  content         String
+  role            String   // user | assistant
+  confidence_score Float?
+  metadata        Json?
+  created_at      DateTime @default(now())
+
+  // Relations
+  session         ChatSession @relation(fields: [session_id], references: [id])
+
+  @@index([session_id])
+  @@index([created_at])
 }

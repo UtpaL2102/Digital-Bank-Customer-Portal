@@ -22,6 +22,7 @@ import loansBff from "./routes/loans.bff.routes.js";
 import adminBffRoutes from "./routes/admin.bff.routes.js";
 import transfersBffRouter from "./routes/transfers.bff.routes.js";
 import scheduledTransfersBffRouter from "./routes/scheduledTransfers.bff.routes.js";
+import chatbotBffRouter from "./routes/chatbot.bff.routes.js";
 import { requireAdminBff } from "./middlewares/admin.auth.middleware.js";
 
 dotenv.config();
@@ -94,6 +95,8 @@ app.use(loansBff);
 
 app.use(adminBffRoutes);
 
+// Chatbot endpoints (require authentication)
+app.use(chatbotBffRouter);
 
 app.use(errorHandler);
 
