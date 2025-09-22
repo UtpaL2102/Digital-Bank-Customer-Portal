@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import debounce from "lodash-es/debounce";
-import "../transferStep1.css";
+import "../TransferStep1.css";
 import { accounts as accountsApi, beneficiaries as beneficiariesApi } from "../lib/api";
 import { getAuthToken } from "../lib/authHelpers";
 import { formatCurrency } from "../lib/currencyHelpers";
