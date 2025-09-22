@@ -35,7 +35,7 @@ const FaqPage = () => {
 
             {/* Ask Bot Button */}
             <button
-              onClick={() => navigate("/chatbot-support")}
+              onClick={() => navigate("/chatbot")}
               className="gradient-button text-white font-bold py-3 px-8 rounded-full w-full md:w-auto hover:opacity-90 transition-opacity whitespace-nowrap"
               style={{
                 backgroundImage: "linear-gradient(to right, #001BB7, #0046FF)",

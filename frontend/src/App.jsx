@@ -1,6 +1,6 @@
 // AUTH: added route protection - Route configuration with auth guards
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import TwoFactor from "./pages/TwoFactor";
@@ -22,10 +22,9 @@ import AddBeneficiary from "./pages/AddBeneficiary";
 import NotificationPreferences from "./pages/NotificationPreferences";
 import ProfileSecurity from "./pages/ProfileSecurity";
 import LimitPage from "./pages/LimitPage";
-import ChatbotSupportPage from "./pages/ChatbotSupportPage";
+import UnifiedChatbotPage from "./pages/UnifiedChatbotPage";
 import FaqPage from "./pages/FaqPage";
 import KycStatus from "./pages/KycStatus";
-import ChatHistoryPage from "./pages/ChatHistoryPage";
 import LoansOverviewPage from "./pages/LoansOverviewPage";
 import ApplyForLoanPage from "./pages/ApplyForLoanPage";
 import ActiveSessions from "./pages/ActiveSessions";
@@ -52,8 +51,7 @@ const WrappedComponents = {
   LimitPage: WithNavbar(LimitPage),
   NotificationsPage: WithNavbar(NotificationsPage),
   ProfileSecurity: WithNavbar(ProfileSecurity),
-  ChatbotSupportPage: WithNavbar(ChatbotSupportPage),
-  ChatHistoryPage: WithNavbar(ChatHistoryPage),
+  UnifiedChatbotPage: WithNavbar(UnifiedChatbotPage),
   ActiveSessions: WithNavbar(ActiveSessions),
   TransactionDispute: WithNavbar(TransactionDispute),
   AddBeneficiary: WithNavbar(AddBeneficiary),
@@ -84,6 +82,11 @@ export default function App() {
         <Route path="/register-step1" element={<RegisterStep1 />} />
         <Route path="/unauthorized" element={<Unauthorized401 />} />
         <Route path="/forbidden" element={<Forbidden403 />} />
+        
+        {/* Legacy route redirects */}
+        <Route path="/chatbot-support" element={<Navigate to="/chatbot" replace />} />
+        <Route path="/chat-history" element={<Navigate to="/chatbot" replace />} />
+        
         <Route path="*" element={<NotFound404 />} />
 
         {/* KYC routes - protected but don't require KYC verification */}
@@ -184,19 +187,14 @@ export default function App() {
             <WrappedComponents.LimitPage />
           </ProtectedRoute>
         } />
-        <Route path="/chatbot-support" element={
+        <Route path="/chatbot" element={
           <ProtectedRoute>
-            <WrappedComponents.ChatbotSupportPage />
+            <WrappedComponents.UnifiedChatbotPage />
           </ProtectedRoute>
         } />
         <Route path="/Faq" element={
           <ProtectedRoute>
             <WrappedComponents.FaqPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/chat-history" element={
-          <ProtectedRoute>
-            <WrappedComponents.ChatHistoryPage />
           </ProtectedRoute>
         } />
         <Route path="/loans" element={

@@ -410,7 +410,7 @@ const Dashboard = () => {
               </button>
 
               <button
-                onClick={() => navigate("/chatbot-support")}
+                onClick={() => navigate("/chatbot")}
                 className="flex w-full items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 <span className="material-icons mr-3 text-[20px]">chat</span>
