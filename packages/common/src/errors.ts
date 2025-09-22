@@ -1,4 +1,10 @@
-import type { Request, Response, NextFunction } from 'express';
+
+import { Request as CustomRequest, Response, NextFunction } from "express";
+
+export interface CustomRequestWithRequestId extends CustomRequest {
+  requestId?: string;
+}
+
 
 export class AppError extends Error {
   code: string;
@@ -15,22 +21,19 @@ export class AppError extends Error {
   }
 }
 
-// Extend Express.Request to include optional requestId
-declare module 'express' {
-  interface Request {
-    requestId?: string;
-  }
-}
-
-export function errorHandler(err: Error | AppError, req: Request, res: Response, next: NextFunction) {
-  const error = err instanceof AppError ? err : new AppError('INTERNAL_ERROR', err.message);
-  const requestId = req.requestId || req.headers['x-request-id'];
-
-  res.status(error.status).json({
+export function errorHandler(
+  err: AppError & { status?: number }, // accept AppError + optional status
+  req: CustomRequestWithRequestId,
+  res: Response,
+  next: NextFunction
+) {
+  const requestId = req.requestId || (req.headers["x-request-id"] as string);
+  res.status(err.status || 500).json({
     error: {
-      code: error.code,
-      message: error.message,
-      details: error.details,
+      code: err.code || "INTERNAL_ERROR",
+      message: err.message,
+      details: err.details,
+
       requestId,
     },
   });

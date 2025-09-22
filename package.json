@@ -18,7 +18,8 @@
     "dev:account": "pnpm -C packages/account-service dev",
     "migrate:auth": "pnpm -C packages/auth-service migrate",
     "migrate:account": "pnpm -C packages/account-service migrate",
-    "db:reset": "pnpm -C packages/auth-service db:reset && pnpm -C packages/account-service db:reset"
+    "db:reset": "pnpm -C packages/auth-service db:reset && pnpm -C packages/account-service db:reset",
+    "postinstall": "pnpm -w exec prisma generate"
   },
   "compilerOptions": {
     "target": "ES2020",

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "start": "tsx src/index.ts",
+    "start": "node src/index.js",
     "build": "tsc",
     "lint": "eslint . --ext .ts",
     "test": "jest",
@@ -15,7 +15,9 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
     "prisma:studio": "prisma studio",
-    "db:push": "prisma db push"
+    "db:push": "prisma db push",
+    "postinstall": "pnpm -w exec prisma generate"
+    
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
