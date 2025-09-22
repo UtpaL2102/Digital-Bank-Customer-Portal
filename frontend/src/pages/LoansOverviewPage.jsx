@@ -167,7 +167,7 @@ export default function LoansOverviewPage() {
               headers.forEach((header, j) => {
                 doc.text(header, 20 + j * 30, 20);
               });
-              y = 30 + lineHeight;
+              let y = 30 + lineHeight;
             }
             
             doc.text(String(row.installment_number), 20, y);

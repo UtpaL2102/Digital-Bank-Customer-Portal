@@ -34,10 +34,16 @@ services:
       - auth-service
       - account-service
   chatbot-service:
-    build: ../python/chatbot-service
+    build:
+      context: ../Chatbot-service
+      dockerfile: Dockerfile
     env_file:
       - ./env/chatbot.dev.env
     ports:
       - "5001:5001"
+    volumes:
+      - ../Chatbot-service:/app
+    environment:
+      - PYTHONUNBUFFERED=1
 volumes:
   pgdata:
