@@ -7,7 +7,8 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "lint": "eslint . --ext .ts",
-    "test": "jest"
+    "test": "jest",
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "@digital-bank/common": "workspace:*",

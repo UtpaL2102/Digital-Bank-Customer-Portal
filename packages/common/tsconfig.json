@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "types": ["node", "express"],
+    "typeRoots": ["./node_modules/@types", "../common/src/types"]
+  },
+  "include": ["src/**/*", "../common/src/**/*"]
+}
