@@ -14,6 +14,7 @@ async function main() {
   const accountType = process.env.ACCOUNT_TYPE || "checking";
 
   if (!userId) {
+
     throw new Error("Set TEST_USER_ID env var to an existing user id before running.");
   }
 
@@ -73,6 +74,7 @@ async function main() {
   } finally {
     await prisma.$disconnect();
   }
+
 }
 
 main().catch((err) => {

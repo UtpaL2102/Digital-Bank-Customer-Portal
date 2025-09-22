@@ -156,6 +156,7 @@ ehthumbs.db
 Icon?
 Desktop.ini
 
+
 # Prisma generated client (should not be versioned)
 packages/*/generated/
 packages/*/generated/prisma-client/
@@ -165,6 +166,7 @@ node_modules/.prisma/
 
 # General Node / TS build outputs
 dist/
+
 node_modules/
 
 # Prisma generated client
@@ -172,4 +174,3 @@ packages/account-service/generated/prisma-client/
 
 # Prisma generated client
 packages/auth-service/generated/prisma-client/
-
